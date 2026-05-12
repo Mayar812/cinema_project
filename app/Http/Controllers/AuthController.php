@@ -33,7 +33,7 @@ class AuthController extends Controller
         $request->session()->regenerate();
         $request->session()->put('username', $user->username);
 
-        return redirect()->route('showtimes.index');
+        return redirect()->route('showtimes.index')->with('logged_in_tab', true);
     }
 
     public function logout(Request $request): RedirectResponse

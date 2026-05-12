@@ -19,7 +19,8 @@
         h1 { margin: 0 0 8px; font-size: 28px; }
         .muted { color: #a7b0c0; margin: 0 0 22px; }
         .stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin-bottom: 22px; }
-        .stat { background: #111722; border: 1px solid #2b3342; border-radius: 8px; padding: 16px; }
+        .stat { background: #111722; border: 1px solid #2b3342; border-radius: 8px; padding: 16px; transition: transform .2s ease, border-color .2s ease, box-shadow .2s ease; }
+        .stat:hover { transform: translateY(-4px); border-color: #d9274d; box-shadow: 0 14px 30px rgba(0, 0, 0, .25); }
         .stat span { display: block; color: #a7b0c0; font-size: 13px; margin-bottom: 6px; }
         .stat strong { font-size: 24px; }
         .row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
@@ -29,7 +30,8 @@
         .field { margin-bottom: 16px; }
         .error { color: #fda4af; font-size: 14px; margin-top: 6px; }
         .actions { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
-        .button { border: 0; border-radius: 6px; padding: 10px 14px; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; min-height: 40px; }
+        .button { border: 0; border-radius: 6px; padding: 10px 14px; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; min-height: 40px; transition: transform .18s ease, filter .18s ease, box-shadow .18s ease; }
+        .button:hover { transform: translateY(-2px); filter: brightness(1.08); box-shadow: 0 10px 22px rgba(0, 0, 0, .24); }
         .primary { background: #d9274d; color: #fff; }
         .secondary { background: #2b3342; color: #fff; }
         .danger { background: #991b1b; color: #fff; }
@@ -40,6 +42,8 @@
         table { width: 100%; border-collapse: collapse; }
         th, td { text-align: left; padding: 13px 10px; border-bottom: 1px solid #2b3342; vertical-align: top; }
         th { color: #cbd5e1; font-size: 14px; background: #111722; }
+        tbody tr { transition: background .18s ease, transform .18s ease; }
+        tbody tr:hover { background: #202838; }
         .table-actions { display: flex; gap: 8px; flex-wrap: wrap; }
         .status { background: #052e25; color: #a7f3d0; border: 1px solid #047857; padding: 10px 12px; border-radius: 6px; margin-bottom: 16px; }
         .badge { border-radius: 999px; display: inline-flex; font-weight: 700; font-size: 12px; padding: 5px 9px; }
@@ -59,6 +63,18 @@
     </style>
 </head>
 <body>
+    @isset($username)
+        <script>
+            @if (session('logged_in_tab'))
+                sessionStorage.setItem('cinemaLoggedInTab', '1');
+            @else
+                if (sessionStorage.getItem('cinemaLoggedInTab') !== '1') {
+                    window.location.replace('{{ route('login') }}');
+                }
+            @endif
+        </script>
+    @endisset
+
     <div class="shell">
         @isset($username)
             <header class="topbar">

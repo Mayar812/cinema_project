@@ -421,8 +421,7 @@
                 <span class="eyebrow">University CRUD Project</span>
                 <h1>Cinema Showtime Management System</h1>
                 <p>
-                    A simple and professional homepage for managing movies, showtimes, halls,
-                    and seat availability in a cinema environment.
+                    A smart cinema management system for organizing movie showtimes, halls, and ticket availability.
                 </p>
                 <div class="hero-actions">
                     <a class="btn btn-primary" href="/login">Login</a>
@@ -436,7 +435,7 @@
             <div class="section-header">
                 <div>
                     <h2>Now Showing</h2>
-                    <p>Sample movie records for a student CRUD project homepage.</p>
+                    <p>Browse the latest movies and available showtimes.</p>
                 </div>
             </div>
 
@@ -502,7 +501,7 @@
 
     <footer class="footer">
         <div class="footer-inner">
-            <p>&copy; <?php echo date('Y'); ?> Cinema Showtime Management System. University Project.</p>
+            <p>&copy; <?php echo date('Y'); ?> Cinema Showtime Management System.</p>
             <div class="socials" aria-label="Social media links">
                 <a href="#" aria-label="Facebook">
                     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13.5 22v-8h2.7l.4-3.1h-3.1V8.8c0-.9.3-1.5 1.6-1.5h1.7V4.5c-.3 0-1.3-.1-2.5-.1-2.5 0-4.2 1.5-4.2 4.3v2.4H7.3V14h2.8v8h3.4z"/></svg>
