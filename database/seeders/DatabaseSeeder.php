@@ -17,15 +17,18 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        // Create or update the admin user used for logging in during testing.
         User::updateOrCreate(
             ['username' => 'admin'],
             [
                 'name' => 'Cinema Admin',
                 'email' => 'admin@example.com',
+                // Hash the password before saving it to the database.
                 'password' => Hash::make('password'),
             ],
         );
 
+        // Sample showtime records inserted when the database is seeded.
         $showtimes = [
             [
                 'movie_title' => 'Midnight Chase',
@@ -62,8 +65,10 @@ class DatabaseSeeder extends Seeder
             ],
         ];
 
+        // Insert each sample showtime only if it does not already exist.
         foreach ($showtimes as $showtime) {
             Showtime::firstOrCreate(
+                // These fields identify a unique showtime for seeding.
                 [
                     'movie_title' => $showtime['movie_title'],
                     'show_date' => $showtime['show_date'],

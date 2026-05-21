@@ -1,23 +1,31 @@
+{{-- This shared form is used for both adding and editing showtimes. --}}
 <x-layouts.app :title="$showtime->exists ? 'Edit Showtime' : 'Add Showtime'" :username="$username">
     <main class="container">
         <section class="panel">
+            {{-- The heading changes depending on whether the model already exists. --}}
             <div class="toolbar">
                 <div>
                     <h1>{{ $showtime->exists ? 'Edit Showtime' : 'Add Showtime' }}</h1>
                     <p class="muted">Enter the screening schedule details.</p>
                 </div>
+                {{-- Return to the dashboard list. --}}
                 <a class="button secondary" href="{{ route('showtimes.index') }}">Back</a>
             </div>
 
+            {{-- Existing records submit to update; new records submit to store. --}}
             <form action="{{ $showtime->exists ? route('showtimes.update', $showtime) : route('showtimes.store') }}" method="POST">
+                {{-- CSRF protects the form submission. --}}
                 @csrf
+                {{-- Laravel uses PUT for update because HTML forms only support GET and POST. --}}
                 @if ($showtime->exists)
                     @method('PUT')
                 @endif
 
+                {{-- Basic movie information fields. --}}
                 <div class="row">
                     <div class="field">
                         <label for="movie_title">Movie Title</label>
+                        {{-- old() keeps the user's input if validation fails. --}}
                         <input id="movie_title" name="movie_title" maxlength="100" value="{{ old('movie_title', $showtime->movie_title) }}">
                         @error('movie_title') <div class="error">{{ $message }}</div> @enderror
                     </div>
@@ -29,6 +37,7 @@
                     </div>
                 </div>
 
+                {{-- Hall number and show date fields. --}}
                 <div class="row">
                     <div class="field">
                         <label for="hall_number">Hall Number</label>
@@ -38,25 +47,30 @@
 
                     <div class="field">
                         <label for="show_date">Show Date</label>
+                        {{-- optional() avoids errors when show_date is empty in create mode. --}}
                         <input id="show_date" name="show_date" type="date" value="{{ old('show_date', optional($showtime->show_date)->format('Y-m-d')) }}">
                         @error('show_date') <div class="error">{{ $message }}</div> @enderror
                     </div>
                 </div>
 
+                {{-- Start and end time fields. --}}
                 <div class="row">
                     <div class="field">
                         <label for="start_time">Start Time</label>
+                        {{-- substr keeps only HH:MM for the HTML time input. --}}
                         <input id="start_time" name="start_time" type="time" value="{{ old('start_time', $showtime->start_time ? substr($showtime->start_time, 0, 5) : '') }}">
                         @error('start_time') <div class="error">{{ $message }}</div> @enderror
                     </div>
 
                     <div class="field">
                         <label for="end_time">End Time</label>
+                        {{-- The controller validates that end time is after start time. --}}
                         <input id="end_time" name="end_time" type="time" value="{{ old('end_time', $showtime->end_time ? substr($showtime->end_time, 0, 5) : '') }}">
                         @error('end_time') <div class="error">{{ $message }}</div> @enderror
                     </div>
                 </div>
 
+                {{-- Seats and price fields. --}}
                 <div class="row">
                     <div class="field">
                         <label for="available_seats">Available Seats</label>
@@ -71,10 +85,12 @@
                     </div>
                 </div>
 
+                {{-- Movie status must match one of the allowed validation values. --}}
                 <div class="field">
                     <label for="movie_status">Movie Status</label>
                     <select id="movie_status" name="movie_status">
                         <option value="">Select status</option>
+                        {{-- @selected keeps the correct option selected in edit mode or after validation errors. --}}
                         <option value="Showing" @selected(old('movie_status', $showtime->movie_status) === 'Showing')>Showing</option>
                         <option value="Coming Soon" @selected(old('movie_status', $showtime->movie_status) === 'Coming Soon')>Coming Soon</option>
                     </select>
@@ -82,6 +98,7 @@
                 </div>
 
                 <div class="actions">
+                    {{-- Button text changes between create and update mode. --}}
                     <button class="button primary" type="submit">{{ $showtime->exists ? 'Update Showtime' : 'Create Showtime' }}</button>
                 </div>
             </form>

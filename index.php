@@ -1,10 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <!-- Basic page settings for the public home page. -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cinema Showtime Management System</title>
     <style>
+        /* Public home page styles: navbar, hero, movie cards, features, footer, and responsive layout. */
         * {
             box-sizing: border-box;
             margin: 0;
@@ -399,13 +401,16 @@
     </style>
 </head>
 <body>
+    <!-- Top navigation for the public landing page. -->
     <header class="navbar">
         <nav class="nav-inner" aria-label="Main navigation">
+            <!-- Brand link scrolls back to the home section. -->
             <a class="brand" href="#home">
                 <span class="brand-mark">CS</span>
                 <span>Cinema Showtime</span>
             </a>
 
+            <!-- Navigation links scroll to page sections, while Login opens the Laravel login route. -->
             <ul class="nav-links">
                 <li><a class="active" href="#home">Home</a></li>
                 <li><a href="#movies">Movies</a></li>
@@ -416,6 +421,7 @@
     </header>
 
     <main id="home">
+        <!-- Hero section introduces the project and gives the main actions. -->
         <section class="hero">
             <div class="hero-inner">
                 <span class="eyebrow">University CRUD Project</span>
@@ -431,6 +437,7 @@
             </div>
         </section>
 
+        <!-- Static movie preview section for the public homepage. -->
         <section class="section" id="movies">
             <div class="section-header">
                 <div>
@@ -439,11 +446,13 @@
                 </div>
             </div>
 
+            <!-- This search box is visual on the home page; dashboard search is handled after login. -->
             <form class="search-box" action="#" method="get">
                 <input type="search" name="search" placeholder="Search movies by title or genre">
                 <button class="btn btn-primary" type="submit">Search</button>
             </form>
 
+            <!-- Example movie cards shown to visitors before they log in. -->
             <div class="movie-grid">
                 <article class="movie-card">
                     <div class="poster" style="background-image: url('https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=700&q=80');"></div>
@@ -482,6 +491,7 @@
                 </article>
             </div>
 
+            <!-- Feature boxes explain what the CRUD system manages. -->
             <div class="features" id="showtimes">
                 <div class="feature">
                     <strong>Movie Records</strong>
@@ -499,10 +509,13 @@
         </section>
     </main>
 
+    <!-- Footer with dynamic PHP year and simple social media icon links. -->
     <footer class="footer">
         <div class="footer-inner">
+            <!-- date('Y') prints the current year automatically. -->
             <p>&copy; <?php echo date('Y'); ?> Cinema Showtime Management System.</p>
             <div class="socials" aria-label="Social media links">
+                <!-- SVG icons are drawn directly in the HTML, and the links are placeholders. -->
                 <a href="#" aria-label="Facebook">
                     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13.5 22v-8h2.7l.4-3.1h-3.1V8.8c0-.9.3-1.5 1.6-1.5h1.7V4.5c-.3 0-1.3-.1-2.5-.1-2.5 0-4.2 1.5-4.2 4.3v2.4H7.3V14h2.8v8h3.4z"/></svg>
                 </a>

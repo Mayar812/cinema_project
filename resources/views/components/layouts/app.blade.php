@@ -3,8 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {{-- Use the title passed from the page, or use the default project title. --}}
     <title>{{ $title ?? 'Cinema Showtime Management System' }}</title>
     <style>
+        /* Shared dashboard, form, login, table, and responsive styles for pages using this layout. */
         * { box-sizing: border-box; }
         body { margin: 0; font-family: Arial, Helvetica, sans-serif; background: #10131a; color: #edf2f7; }
         a { color: inherit; text-decoration: none; }
@@ -63,11 +65,14 @@
     </style>
 </head>
 <body>
+    {{-- This browser-tab check only runs on logged-in pages where a username is passed to the layout. --}}
     @isset($username)
         <script>
             @if (session('logged_in_tab'))
+                // Mark the current browser tab as the tab that completed login.
                 sessionStorage.setItem('cinemaLoggedInTab', '1');
             @else
+                // If this tab was not marked after login, send it back to the login page.
                 if (sessionStorage.getItem('cinemaLoggedInTab') !== '1') {
                     window.location.replace('{{ route('login') }}');
                 }
@@ -76,11 +81,14 @@
     @endisset
 
     <div class="shell">
+        {{-- The top navigation only appears after login because public pages do not pass username. --}}
         @isset($username)
             <header class="topbar">
                 <a class="brand" href="{{ route('showtimes.index') }}">Cinema Showtime Management System</a>
                 <div class="user">
+                    {{-- Show the username saved in the Laravel session. --}}
                     <span>Signed in as <strong>{{ $username }}</strong></span>
+                    {{-- Logout uses POST and CSRF protection for security. --}}
                     <form action="{{ route('logout') }}" method="POST">
                         @csrf
                         <button class="button ghost" type="submit">Logout</button>
@@ -89,6 +97,7 @@
             </header>
         @endisset
 
+        {{-- Page content from <x-layouts.app> is inserted here. --}}
         {{ $slot }}
     </div>
 </body>

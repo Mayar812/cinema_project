@@ -10,7 +10,9 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
+// These user fields are allowed to be filled by Laravel.
 #[Fillable(['name', 'username', 'email', 'password'])]
+// These fields are hidden when the user model is converted to arrays or JSON.
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
@@ -25,7 +27,9 @@ class User extends Authenticatable
     protected function casts(): array
     {
         return [
+            // Convert email verification date to a date/time object.
             'email_verified_at' => 'datetime',
+            // Automatically hash passwords when they are saved.
             'password' => 'hashed',
         ];
     }
