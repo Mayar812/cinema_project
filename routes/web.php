@@ -1,8 +1,10 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\Auth\GoogleController;
 use App\Http\Controllers\ShowtimeController;
 use Illuminate\Support\Facades\Route;
+
 
 // This route shows the public home page before the admin logs in.
 Route::get('/', function () {
@@ -29,6 +31,13 @@ Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
 Route::post('/login', [AuthController::class, 'login'])->name('login.store');
 // This route logs the user out and clears the session.
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+
+// GOOGLE LOGIN ROUTES
+Route::get('auth/google', [GoogleController::class, 'redirectToGoogle'])
+    ->name('login.google');
+
+Route::get('auth/google/callback', [GoogleController::class, 'handleGoogleCallback']);
+
 
 // These showtime CRUD routes are protected by the username session middleware.
 Route::middleware('username.session')->group(function () {

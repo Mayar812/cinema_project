@@ -11,7 +11,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
 // These user fields are allowed to be filled by Laravel.
-#[Fillable(['name', 'username', 'email', 'password'])]
+#[Fillable(['name', 'username', 'email', 'password','google_id'])]
 // These fields are hidden when the user model is converted to arrays or JSON.
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
