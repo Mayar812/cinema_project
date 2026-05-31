@@ -47,6 +47,16 @@
         .toolbar { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 20px; flex-wrap: wrap; }
         .search { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 18px; }
         .search input { min-width: 260px; }
+        .lookup-row { display: flex; gap: 8px; }
+        .movie-lookup { background: #111722; border: 1px solid #2b3342; border-radius: 8px; padding: 16px; margin-bottom: 20px; }
+        .lookup-message { min-height: 20px; margin: 8px 0 0; }
+        .movie-results { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; }
+        .movie-result { border: 1px solid #2b3342; border-radius: 6px; background: #0f141d; color: #f8fafc; padding: 8px; display: flex; align-items: center; gap: 10px; text-align: left; cursor: pointer; transition: transform .18s ease, border-color .18s ease, background .18s ease; }
+        .movie-result:hover { transform: translateY(-2px); border-color: #d9274d; background: #181d27; }
+        .movie-result img, .poster-empty { width: 42px; height: 58px; border-radius: 4px; flex: 0 0 auto; object-fit: cover; background: #2b3342; }
+        .poster-empty { display: inline-flex; align-items: center; justify-content: center; color: #a7b0c0; font-size: 11px; text-align: center; padding: 4px; }
+        .movie-result strong, .movie-result small { display: block; }
+        .movie-result small { color: #a7b0c0; margin-top: 3px; }
         table { width: 100%; border-collapse: collapse; }
         th, td { text-align: left; padding: 13px 10px; border-bottom: 1px solid #2b3342; vertical-align: top; }
         th { color: #cbd5e1; font-size: 14px; background: #111722; }
@@ -62,6 +72,7 @@
         @media (max-width: 700px) {
             .topbar { padding: 14px 16px; align-items: flex-start; flex-direction: column; }
             .row, .stats { grid-template-columns: 1fr; }
+            .lookup-row { flex-direction: column; }
             table, thead, tbody, th, td, tr { display: block; }
             thead { display: none; }
             tr { border-bottom: 1px solid #2b3342; padding: 12px 0; }

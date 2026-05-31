@@ -12,6 +12,18 @@
                 <a class="button secondary" href="{{ route('showtimes.index') }}">Back</a>
             </div>
 
+            <div class="movie-lookup">
+                <div class="field">
+                    <label for="movie_lookup">Find Movie</label>
+                    <div class="lookup-row">
+                        <input id="movie_lookup" type="search" placeholder="Search OMDb by title">
+                        <button class="button secondary" id="movie_lookup_button" type="button">Find</button>
+                    </div>
+                    <div class="muted lookup-message" id="movie_lookup_message"></div>
+                </div>
+                <div class="movie-results" id="movie_results"></div>
+            </div>
+
             {{-- Existing records submit to update; new records submit to store. --}}
             <form action="{{ $showtime->exists ? route('showtimes.update', $showtime) : route('showtimes.store') }}" method="POST">
                 {{-- CSRF protects the form submission. --}}
@@ -104,4 +116,98 @@
             </form>
         </section>
     </main>
+
+    <script>
+        const lookupInput = document.getElementById('movie_lookup');
+        const lookupButton = document.getElementById('movie_lookup_button');
+        const lookupMessage = document.getElementById('movie_lookup_message');
+        const movieResults = document.getElementById('movie_results');
+        const movieTitleInput = document.getElementById('movie_title');
+        const genreInput = document.getElementById('genre');
+
+        function escapeHtml(value) {
+            return String(value || '').replace(/[&<>"']/g, (character) => ({
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;',
+            }[character]));
+        }
+
+        async function searchMovies() {
+            const title = lookupInput.value.trim();
+
+            movieResults.innerHTML = '';
+            lookupMessage.textContent = '';
+
+            if (title.length < 2) {
+                lookupMessage.textContent = 'Enter at least 2 characters.';
+                return;
+            }
+
+            lookupButton.disabled = true;
+            lookupMessage.textContent = 'Searching...';
+
+            try {
+                const response = await fetch(`/api/movies/search?title=${encodeURIComponent(title)}`);
+                const payload = await response.json();
+
+                if (!response.ok) {
+                    lookupMessage.textContent = payload.message || 'No movies found.';
+                    return;
+                }
+
+                lookupMessage.textContent = `${payload.total_results} result(s) found.`;
+                movieResults.innerHTML = payload.data.map((movie) => `
+                    <button class="movie-result" type="button" data-imdb-id="${escapeHtml(movie.imdb_id)}">
+                        ${movie.poster ? `<img src="${escapeHtml(movie.poster)}" alt="">` : '<span class="poster-empty">No poster</span>'}
+                        <span>
+                            <strong>${escapeHtml(movie.title)}</strong>
+                            <small>${escapeHtml(movie.year)}</small>
+                        </span>
+                    </button>
+                `).join('');
+            } catch (error) {
+                lookupMessage.textContent = 'Could not search OMDb right now.';
+            } finally {
+                lookupButton.disabled = false;
+            }
+        }
+
+        async function selectMovie(imdbId) {
+            lookupMessage.textContent = 'Loading movie details...';
+
+            try {
+                const response = await fetch(`/api/movies/${imdbId}`);
+                const payload = await response.json();
+
+                if (!response.ok) {
+                    lookupMessage.textContent = payload.message || 'Movie details unavailable.';
+                    return;
+                }
+
+                movieTitleInput.value = payload.data.title || movieTitleInput.value;
+                genreInput.value = payload.data.genre ? payload.data.genre.split(',')[0].trim() : genreInput.value;
+                lookupMessage.textContent = 'Movie details added to the form.';
+            } catch (error) {
+                lookupMessage.textContent = 'Could not load movie details.';
+            }
+        }
+
+        lookupButton.addEventListener('click', searchMovies);
+        lookupInput.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                searchMovies();
+            }
+        });
+        movieResults.addEventListener('click', (event) => {
+            const result = event.target.closest('[data-imdb-id]');
+
+            if (result) {
+                selectMovie(result.dataset.imdbId);
+            }
+        });
+    </script>
 </x-layouts.app>
