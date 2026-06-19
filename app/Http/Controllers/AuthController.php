@@ -6,10 +6,13 @@ use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\View\View;
+use Illuminate\Contracts\View\View;
 
 class AuthController extends Controller
 {
+    private const HARDCODED_USER_USERNAME = 'user';
+    private const HARDCODED_USER_PASSWORD = 'password';
+
     // Show the login page to the user.
     public function showLogin(): View
     {
@@ -24,6 +27,16 @@ class AuthController extends Controller
             'username' => ['required', 'string', 'max:255'],
             'password' => ['required', 'string'],
         ]);
+
+        if (
+            $credentials['username'] === self::HARDCODED_USER_USERNAME
+            && $credentials['password'] === self::HARDCODED_USER_PASSWORD
+        ) {
+            $request->session()->regenerate();
+            $request->session()->put('username', self::HARDCODED_USER_USERNAME);
+
+            return redirect()->route('user.home');
+        }
 
         // Find the user record by username.
         $user = User::where('username', $credentials['username'])->first();
@@ -40,8 +53,8 @@ class AuthController extends Controller
         // Store the username in the session so protected pages know the user is logged in.
         $request->session()->put('username', $user->username);
 
-        // Redirect to the dashboard.
-        return redirect()->route('showtimes.index');
+        // Users land on the booking home page, while the existing admin account keeps its dashboard flow.
+        return redirect()->route($user->username === 'admin' ? 'showtimes.index' : 'user.home');
     }
 
     // Handle logout and remove the login session.
