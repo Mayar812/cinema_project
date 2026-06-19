@@ -13,7 +13,7 @@ class AuthController extends Controller
     // Show the login page to the user.
     public function showLogin(): View
     {
-        return view('auth.login');
+        return view('Admin.auth.login');
     }
 
     // Handle the login form submission.
@@ -40,8 +40,8 @@ class AuthController extends Controller
         // Store the username in the session so protected pages know the user is logged in.
         $request->session()->put('username', $user->username);
 
-        // Redirect to the dashboard and mark this browser tab as the logged-in tab.
-        return redirect()->route('showtimes.index')->with('logged_in_tab', true);
+        // Redirect to the dashboard.
+        return redirect()->route('showtimes.index');
     }
 
     // Handle logout and remove the login session.

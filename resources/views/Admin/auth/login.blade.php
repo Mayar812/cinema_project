@@ -1,5 +1,5 @@
 {{-- The login page uses the shared layout and passes a page title. --}}
-<x-layouts.app title="Login">
+<x-admin::layouts.app title="Login">
     <main class="auth">
         <section class="panel">
             <h1>Cinema Showtime Management System</h1>
@@ -41,4 +41,4 @@
             </a>
         </section>
     </main>
-</x-layouts.app>
+</x-admin::layouts.app>

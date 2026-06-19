@@ -1,5 +1,5 @@
 {{-- Dashboard page: receives showtimes, search text, username, and statistics from ShowtimeController@index. --}}
-<x-layouts.app title="Cinema Showtime Management System" :username="$username">
+<x-admin::layouts.app title="Cinema Showtime Management System" :username="$username">
     <main class="container">
         <section class="panel">
             {{-- Top dashboard toolbar with page title and add button. --}}
@@ -104,4 +104,4 @@
             </div>
         </section>
     </main>
-</x-layouts.app>
+</x-admin::layouts.app>

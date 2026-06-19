@@ -82,21 +82,6 @@
     </style>
 </head>
 <body>
-    {{-- This browser-tab check only runs on logged-in pages where a username is passed to the layout. --}}
-    @isset($username)
-        <script>
-            @if (session('logged_in_tab'))
-                // Mark the current browser tab as the tab that completed login.
-                sessionStorage.setItem('cinemaLoggedInTab', '1');
-            @else
-                // If this tab was not marked after login, send it back to the login page.
-                if (sessionStorage.getItem('cinemaLoggedInTab') !== '1') {
-                    window.location.replace('{{ route('login') }}');
-                }
-            @endif
-        </script>
-    @endisset
-
     <div class="shell">
         {{-- The top navigation only appears after login because public pages do not pass username. --}}
         @isset($username)
@@ -114,7 +99,7 @@
             </header>
         @endisset
 
-        {{-- Page content from <x-layouts.app> is inserted here. --}}
+        {{-- Page content from <x-admin::layouts.app> is inserted here. --}}
         {{ $slot }}
     </div>
 </body>

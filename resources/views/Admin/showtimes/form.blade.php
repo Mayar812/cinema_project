@@ -1,5 +1,5 @@
 {{-- This shared form is used for both adding and editing showtimes. --}}
-<x-layouts.app :title="$showtime->exists ? 'Edit Showtime' : 'Add Showtime'" :username="$username">
+<x-admin::layouts.app :title="$showtime->exists ? 'Edit Showtime' : 'Add Showtime'" :username="$username">
     <main class="container">
         <section class="panel">
             {{-- The heading changes depending on whether the model already exists. --}}
@@ -210,4 +210,4 @@
             }
         });
     </script>
-</x-layouts.app>
+</x-admin::layouts.app>

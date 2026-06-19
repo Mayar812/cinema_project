@@ -34,7 +34,7 @@ class ShowtimeController extends Controller
             ->withQueryString();
 
         // Send all dashboard data to the showtimes index view.
-        return view('showtimes.index', [
+        return view('Admin.showtimes.index', [
             'showtimes' => $showtimes,
             'search' => $search,
             'username' => $request->session()->get('username'),
@@ -50,7 +50,7 @@ class ShowtimeController extends Controller
     // Show an empty form for adding a new showtime.
     public function create(): View
     {
-        return view('showtimes.form', [
+        return view('Admin.showtimes.form', [
             // A new empty model lets the Blade form know this is create mode.
             'showtime' => new Showtime(),
             'username' => session('username'),
@@ -69,7 +69,7 @@ class ShowtimeController extends Controller
     // Show the form with an existing showtime for editing.
     public function edit(Showtime $showtime): View
     {
-        return view('showtimes.form', [
+        return view('Admin.showtimes.form', [
             'showtime' => $showtime,
             'username' => session('username'),
         ]);
