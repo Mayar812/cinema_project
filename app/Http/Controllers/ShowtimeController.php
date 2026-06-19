@@ -15,7 +15,7 @@ use Illuminate\View\View;
 
 class ShowtimeController extends Controller
 {
-    // Display the dashboard with showtime records, search, statistics, and pagination.
+    // Display the dashboard with showtime records, search, and statistics.
     public function index(Request $request): View
     {
         // Read the search text from the URL query string.
@@ -30,13 +30,10 @@ class ShowtimeController extends Controller
                     ->orWhere('hall_number', 'like', "%{$search}%")
                     ->orWhere('show_date', 'like', "%{$search}%");
             })
-            // Sort records by date first, then by start time.
-            ->orderBy('show_date')
-            ->orderBy('start_time')
-            // Show 8 records per page.
-            ->paginate(8)
-            // Keep the search value in pagination links.
-            ->withQueryString();
+            // Show the newest created records first so added movies appear immediately.
+            ->latest('created_at')
+            ->latest('show_id')
+            ->get();
 
         // Send all dashboard data to the showtimes index view.
         return view('Admin.showtimes.index', [
