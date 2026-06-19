@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 // These fields are allowed to be saved using create() and update().
 #[Fillable([
     'movie_title',
+    'image',
     'genre',
     'hall_number',
     'show_date',

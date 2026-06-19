@@ -25,7 +25,7 @@
             </div>
 
             {{-- Existing records submit to update; new records submit to store. --}}
-            <form action="{{ $showtime->exists ? route('showtimes.update', $showtime) : route('showtimes.store') }}" method="POST">
+            <form action="{{ $showtime->exists ? route('showtimes.update', $showtime) : route('showtimes.store') }}" method="POST" enctype="multipart/form-data">
                 {{-- CSRF protects the form submission. --}}
                 @csrf
                 {{-- Laravel uses PUT for update because HTML forms only support GET and POST. --}}
@@ -47,6 +47,20 @@
                         <input id="genre" name="genre" maxlength="50" value="{{ old('genre', $showtime->genre) }}">
                         @error('genre') <div class="error">{{ $message }}</div> @enderror
                     </div>
+                </div>
+
+                <div class="field">
+                    <label for="image_file">Movie Image</label>
+                    <input id="image_file" type="file" name="image_file" accept="image/*">
+                    {{-- OMDb's Poster URL is placed here by JavaScript and saved in the same image column. --}}
+                    <input type="hidden" name="image" id="image" value="{{ old('image', $showtime->image) }}">
+                    <input type="hidden" name="image_changed" id="image_changed" value="0">
+                    <div class="image-preview-wrap" id="image_preview_wrap" @style(['display: none' => ! old('image', $showtime->image)])>
+                        <img class="image-preview" id="image_preview" src="{{ old('image', $showtime->image) }}" alt="Movie poster preview">
+                    </div>
+                    <div class="muted image-help">Upload JPG, PNG, WebP, or GIF up to 5 MB. Selecting an OMDb movie uses its poster automatically.</div>
+                    @error('image') <div class="error">{{ $message }}</div> @enderror
+                    @error('image_file') <div class="error">{{ $message }}</div> @enderror
                 </div>
 
                 {{-- Hall number and show date fields. --}}
@@ -124,6 +138,17 @@
         const movieResults = document.getElementById('movie_results');
         const movieTitleInput = document.getElementById('movie_title');
         const genreInput = document.getElementById('genre');
+        const imageInput = document.getElementById('image');
+        const imageFileInput = document.getElementById('image_file');
+        const imageChangedInput = document.getElementById('image_changed');
+        const imagePreview = document.getElementById('image_preview');
+        const imagePreviewWrap = document.getElementById('image_preview_wrap');
+        let previewObjectUrl = null;
+
+        function updateImagePreview(imageUrl = imageInput.value.trim()) {
+            imagePreview.src = imageUrl;
+            imagePreviewWrap.style.display = imageUrl ? 'block' : 'none';
+        }
 
         function escapeHtml(value) {
             return String(value || '').replace(/[&<>"']/g, (character) => ({
@@ -189,6 +214,11 @@
 
                 movieTitleInput.value = payload.data.title || movieTitleInput.value;
                 genreInput.value = payload.data.genre ? payload.data.genre.split(',')[0].trim() : genreInput.value;
+                // OMDb calls this field Poster; the API endpoint normalizes "N/A" to null.
+                imageFileInput.value = '';
+                imageInput.value = payload.data.poster && payload.data.poster !== 'N/A' ? payload.data.poster : '';
+                imageChangedInput.value = '1';
+                updateImagePreview();
                 lookupMessage.textContent = 'Movie details added to the form.';
             } catch (error) {
                 lookupMessage.textContent = 'Could not load movie details.';
@@ -196,6 +226,23 @@
         }
 
         lookupButton.addEventListener('click', searchMovies);
+        imageFileInput.addEventListener('change', () => {
+            if (previewObjectUrl) {
+                URL.revokeObjectURL(previewObjectUrl);
+                previewObjectUrl = null;
+            }
+
+            const imageFile = imageFileInput.files[0];
+            imageInput.value = '';
+            imageChangedInput.value = '1';
+
+            if (imageFile) {
+                previewObjectUrl = URL.createObjectURL(imageFile);
+                updateImagePreview(previewObjectUrl);
+            } else {
+                updateImagePreview('');
+            }
+        });
         lookupInput.addEventListener('keydown', (event) => {
             if (event.key === 'Enter') {
                 event.preventDefault();

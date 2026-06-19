@@ -1,13 +1,32 @@
 <?php
 
-use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Auth\GoogleController;
+use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ShowtimeController;
+use App\Models\Showtime;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
-
 // This route shows the public home page before the admin logs in.
-Route::get('/', function () {
+Route::get('/', function (Request $request) {
+    $search = $request->string('search')->trim()->toString();
+    $movieGenres = Showtime::query()
+        ->select('genre')
+        ->distinct()
+        ->orderBy('genre')
+        ->pluck('genre');
+
+    $latestMovies = Showtime::query()
+        ->when($search, function ($query) use ($search) {
+            $query->where(function ($query) use ($search) {
+                $query->where('movie_title', 'like', "%{$search}%")
+                    ->orWhere('genre', 'like', "%{$search}%");
+            });
+        })
+        ->latest('created_at')
+        ->limit(10)
+        ->get();
+
     // Output buffering lets Laravel return the plain root index.php file as a response.
     ob_start();
     include base_path('index.php');
@@ -37,7 +56,6 @@ Route::get('auth/google', [GoogleController::class, 'redirectToGoogle'])
     ->name('login.google');
 
 Route::get('auth/google/callback', [GoogleController::class, 'handleGoogleCallback']);
-
 
 // These showtime CRUD routes are protected by the username session middleware.
 Route::middleware('username.session')->group(function () {

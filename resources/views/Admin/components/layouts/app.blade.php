@@ -57,8 +57,13 @@
         .poster-empty { display: inline-flex; align-items: center; justify-content: center; color: #a7b0c0; font-size: 11px; text-align: center; padding: 4px; }
         .movie-result strong, .movie-result small { display: block; }
         .movie-result small { color: #a7b0c0; margin-top: 3px; }
+        .image-preview-wrap { margin-top: 12px; }
+        .image-preview { display: block; width: 120px; height: 176px; object-fit: cover; border: 1px solid #384254; border-radius: 6px; background: #2b3342; }
+        .image-help { margin: 8px 0 0; font-size: 13px; }
+        .movie-cell { display: flex; align-items: center; gap: 10px; min-width: 170px; }
+        .movie-poster { width: 48px; height: 68px; object-fit: cover; flex: 0 0 auto; border-radius: 5px; background: #2b3342; }
         table { width: 100%; border-collapse: collapse; }
-        th, td { text-align: left; padding: 13px 10px; border-bottom: 1px solid #2b3342; vertical-align: top; }
+        th, td { text-align: left; padding: 13px 10px; border-bottom: 1px solid #2b3342; vertical-align: middle; }
         th { color: #cbd5e1; font-size: 14px; background: #111722; }
         tbody tr { transition: background .18s ease, transform .18s ease; }
         tbody tr:hover { background: #202838; }

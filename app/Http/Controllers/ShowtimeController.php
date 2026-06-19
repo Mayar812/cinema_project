@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Showtime;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
@@ -52,7 +54,7 @@ class ShowtimeController extends Controller
     {
         return view('Admin.showtimes.form', [
             // A new empty model lets the Blade form know this is create mode.
-            'showtime' => new Showtime(),
+            'showtime' => new Showtime,
             'username' => session('username'),
         ]);
     }
@@ -61,7 +63,7 @@ class ShowtimeController extends Controller
     public function store(Request $request): RedirectResponse
     {
         // Validate the input first, then insert the showtime into the database.
-        Showtime::create($this->validatedShowtime($request));
+        Showtime::create($this->showtimeData($request));
 
         return redirect()->route('showtimes.index')->with('status', 'Showtime added successfully.');
     }
@@ -79,7 +81,7 @@ class ShowtimeController extends Controller
     public function update(Request $request, Showtime $showtime): RedirectResponse
     {
         // Validate the new values, then update the selected database record.
-        $showtime->update($this->validatedShowtime($request));
+        $showtime->update($this->showtimeData($request, $showtime));
 
         return redirect()->route('showtimes.index')->with('status', 'Showtime updated successfully.');
     }
@@ -87,17 +89,23 @@ class ShowtimeController extends Controller
     // Delete one showtime record.
     public function destroy(Showtime $showtime): RedirectResponse
     {
+        $this->deleteUploadedImage($showtime->image);
         $showtime->delete();
 
         return redirect()->route('showtimes.index')->with('status', 'Showtime deleted successfully.');
     }
 
     // Keep all showtime validation rules in one method so store and update use the same rules.
-    private function validatedShowtime(Request $request): array
+    private function showtimeData(Request $request, ?Showtime $showtime = null): array
     {
-        return $request->validate([
+        $data = $request->validate([
             // Movie title and genre are required text fields with maximum lengths.
             'movie_title' => ['required', 'string', 'max:100'],
+            // OMDb's Poster value is a full HTTP(S) URL stored in the image column.
+            'image' => ['nullable', 'url:http,https', 'max:2048'],
+            // A manually uploaded poster takes priority over an OMDb poster URL.
+            'image_file' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp,gif', 'max:5120'],
+            'image_changed' => ['nullable', 'boolean'],
             'genre' => ['required', 'string', 'max:50'],
             // Hall number must be a positive integer.
             'hall_number' => ['required', 'integer', 'min:1'],
@@ -114,5 +122,44 @@ class ShowtimeController extends Controller
             // Status is limited to the two allowed values used by the dropdown.
             'movie_status' => ['required', Rule::in(['Showing', 'Coming Soon'])],
         ]);
+
+        $imageFile = $data['image_file'] ?? null;
+        $imageChanged = (bool) ($data['image_changed'] ?? false);
+        unset($data['image_file'], $data['image_changed']);
+
+        if ($imageFile) {
+            $this->deleteUploadedImage($showtime?->image);
+            $path = $imageFile->store('movie-images', 'public');
+            $data['image'] = Storage::disk('public')->url($path);
+        } elseif (filled($data['image'] ?? null)) {
+            if ($imageChanged && $showtime?->image !== $data['image']) {
+                $this->deleteUploadedImage($showtime?->image);
+            }
+        } elseif ($imageChanged) {
+            $this->deleteUploadedImage($showtime?->image);
+            $data['image'] = null;
+        } elseif ($showtime) {
+            // No new file or OMDb poster was chosen, so retain the existing image.
+            unset($data['image']);
+        }
+
+        return $data;
+    }
+
+    private function deleteUploadedImage(?string $image): void
+    {
+        if (! $image) {
+            return;
+        }
+
+        $path = parse_url($image, PHP_URL_PATH);
+        $marker = '/storage/movie-images/';
+
+        // Only delete images managed by this application, never remote OMDb images.
+        if (! is_string($path) || ! Str::contains($path, $marker)) {
+            return;
+        }
+
+        Storage::disk('public')->delete('movie-images/'.Str::after($path, $marker));
     }
 }

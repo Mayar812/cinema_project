@@ -225,6 +225,227 @@
             white-space: nowrap;
         }
 
+        .movie-chips {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 9px;
+            margin: 0 0 20px;
+            padding: 2px 0;
+            overflow-x: auto;
+            scrollbar-width: thin;
+        }
+
+        .movie-chips a {
+            flex: 0 0 auto;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 999px;
+            padding: 8px 14px;
+            background: #151a24;
+            color: #cbd5e1;
+            font-size: 13px;
+            font-weight: 800;
+            transition: border-color 0.2s ease, background 0.2s ease, color 0.2s ease, transform 0.2s ease;
+        }
+
+        .movie-chips a:hover,
+        .movie-chips a:focus-visible,
+        .movie-chips a.is-active {
+            border-color: #e11d48;
+            background: #e11d48;
+            color: #fff;
+            outline: none;
+            transform: translateY(-2px);
+        }
+
+        .slider-section {
+            margin: 12px 0 38px;
+        }
+
+        .slider-heading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 3px;
+            margin-bottom: 14px;
+            text-align: center;
+        }
+
+        .slider-heading h3 {
+            font-size: clamp(28px, 3vw, 34px);
+            line-height: 1.15;
+        }
+
+        .slider-heading p {
+            color: #a7b0c0;
+            font-size: 14px;
+        }
+
+        .slider-shell {
+            position: relative;
+            height: 490px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 14px;
+            background:
+                radial-gradient(circle at 50% 38%, rgba(225, 29, 72, 0.18), transparent 34%),
+                linear-gradient(145deg, #111722, #090d14);
+            perspective: 1200px;
+        }
+
+        .slider-track {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transform-style: preserve-3d;
+        }
+
+        .slide-card {
+            --translate-x: 0px;
+            --translate-z: 0px;
+            --rotation: 0deg;
+            --card-scale: 1;
+            --card-opacity: 1;
+            --card-layer: 20;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: clamp(205px, 21vw, 225px);
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            border-radius: 12px;
+            background: #151a24;
+            box-shadow: 0 24px 60px rgba(0, 0, 0, 0.42);
+            backface-visibility: hidden;
+            opacity: var(--card-opacity);
+            transform:
+                translate3d(calc(-50% + var(--translate-x)), -50%, var(--translate-z))
+                rotateY(var(--rotation))
+                scale(var(--card-scale));
+            transition: transform 0.45s ease, opacity 0.45s ease, border-color 0.3s ease;
+            will-change: transform, opacity;
+            z-index: var(--card-layer);
+            pointer-events: none;
+        }
+
+        .slide-card.is-active {
+            border-color: rgba(225, 29, 72, 0.75);
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .slide-card.is-hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        .slide-image {
+            width: 100%;
+            aspect-ratio: 2 / 3;
+            overflow: hidden;
+            background: #0c111a;
+        }
+
+        .slide-image img {
+            width: 100%;
+            height: 100%;
+            display: block;
+            object-fit: contain;
+            object-position: center;
+        }
+
+        .slide-info {
+            height: 104px;
+            padding: 14px 16px 16px;
+        }
+
+        .slide-info span {
+            display: block;
+            overflow: hidden;
+            margin-bottom: 3px;
+            color: #fda4af;
+            font-size: 12px;
+            font-weight: 800;
+            letter-spacing: 0.08em;
+            text-overflow: ellipsis;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+
+        .slide-info h3 {
+            overflow: hidden;
+            margin-bottom: 4px;
+            font-size: 21px;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .slide-info p {
+            overflow: hidden;
+            color: #a7b0c0;
+            font-size: 13px;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .slider-button {
+            position: absolute;
+            top: 50%;
+            z-index: 40;
+            width: 46px;
+            height: 46px;
+            display: grid;
+            place-items: center;
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            border-radius: 50%;
+            background: rgba(8, 11, 18, 0.88);
+            color: #fff;
+            cursor: pointer;
+            font-size: 34px;
+            line-height: 1;
+            transform: translateY(-50%);
+            transition: background 0.2s ease, transform 0.2s ease;
+        }
+
+        .slider-button:hover,
+        .slider-button:focus-visible {
+            background: #e11d48;
+            outline: none;
+            transform: translateY(-50%) scale(1.06);
+        }
+
+        .previous-button {
+            left: 18px;
+        }
+
+        .next-button {
+            right: 18px;
+        }
+
+        .slider-dots {
+            min-height: 14px;
+            display: flex;
+            justify-content: center;
+            gap: 7px;
+            margin-top: 14px;
+        }
+
+        .slider-dots button {
+            width: 8px;
+            height: 8px;
+            border: 0;
+            border-radius: 999px;
+            background: #4b5563;
+            cursor: pointer;
+            transition: width 0.25s ease, background 0.25s ease;
+        }
+
+        .slider-dots button.is-active {
+            width: 26px;
+            background: #e11d48;
+        }
+
         .movie-grid {
             display: grid;
             grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -390,6 +611,38 @@
                 flex-direction: column;
             }
 
+            .slider-heading {
+                align-items: center;
+                gap: 3px;
+            }
+
+            .movie-chips {
+                justify-content: flex-start;
+            }
+
+            .slider-shell,
+            .slider-track {
+                height: 450px;
+            }
+
+            .slide-card {
+                width: min(200px, calc(100% - 76px));
+            }
+
+            .slider-button {
+                width: 38px;
+                height: 38px;
+                font-size: 28px;
+            }
+
+            .previous-button {
+                left: 8px;
+            }
+
+            .next-button {
+                right: 8px;
+            }
+
             .movie-grid {
                 grid-template-columns: 1fr;
             }
@@ -446,50 +699,104 @@
                 </div>
             </div>
 
-            <!-- This search box is visual on the home page; dashboard search is handled after login. -->
-            <form class="search-box" action="#" method="get">
-                <input type="search" name="search" placeholder="Search movies by title or genre">
+            <!-- Searching refreshes the page with matching database movies in the slider. -->
+            <form class="search-box" action="/#movies" method="get">
+                <input type="search" name="search" value="<?php echo htmlspecialchars($search ?? '', ENT_QUOTES, 'UTF-8'); ?>" placeholder="Search movies by title or genre">
                 <button class="btn btn-primary" type="submit">Search</button>
+                <?php if (! empty($search)): ?>
+                    <a class="btn" href="/#movies">Clear</a>
+                <?php endif; ?>
             </form>
 
-            <!-- Example movie cards shown to visitors before they log in. -->
-            <div class="movie-grid">
-                <article class="movie-card">
-                    <div class="poster" style="background-image: url('https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=700&q=80');"></div>
-                    <div class="movie-info">
-                        <h3>The Last Voyage</h3>
-                        <p class="genre">Adventure</p>
-                        <span class="time">Today - 06:30 PM</span>
-                    </div>
-                </article>
+            <section class="slider-section" aria-label="Latest movies">
+                <div class="slider-heading">
+                    <h3><?php echo empty($search) ? 'Latest Movies' : 'Search Results'; ?></h3>
+                    <p>Use the arrows or dots to browse movie showtimes.</p>
+                </div>
 
-                <article class="movie-card">
-                    <div class="poster" style="background-image: url('https://images.unsplash.com/photo-1517604931442-7e0c8ed2963c?auto=format&fit=crop&w=700&q=80');"></div>
-                    <div class="movie-info">
-                        <h3>Galaxy Mission</h3>
-                        <p class="genre">Sci-Fi</p>
-                        <span class="time">Today - 08:00 PM</span>
-                    </div>
-                </article>
+                <nav class="movie-chips" aria-label="Filter movies by genre">
+                    <?php
+                        $genres = isset($movieGenres) && count($movieGenres) > 0
+                            ? $movieGenres
+                            : ['Drama', 'Action', 'Romance', 'Animation'];
+                    ?>
+                    <?php foreach ($genres as $genre): ?>
+                        <?php $isActiveGenre = isset($search) && strcasecmp($search, $genre) === 0; ?>
+                        <a class="<?php echo $isActiveGenre ? 'is-active' : ''; ?>"
+                           href="/?search=<?php echo rawurlencode($genre); ?>#movies"
+                           <?php echo $isActiveGenre ? 'aria-current="true"' : ''; ?>>
+                            <?php echo htmlspecialchars($genre, ENT_QUOTES, 'UTF-8'); ?>
+                        </a>
+                    <?php endforeach; ?>
+                </nav>
 
-                <article class="movie-card">
-                    <div class="poster" style="background-image: url('https://images.unsplash.com/photo-1497015289639-54688650d173?auto=format&fit=crop&w=700&q=80');"></div>
-                    <div class="movie-info">
-                        <h3>Final Act</h3>
-                        <p class="genre">Action</p>
-                        <span class="time">Tomorrow - 05:15 PM</span>
-                    </div>
-                </article>
+                <div class="slider-shell coverflow-shell" data-slider>
+                    <button class="slider-button previous-button" type="button" data-slider-prev aria-label="Previous movie">&#8249;</button>
+                    <div class="slider-track coverflow-track" data-slider-track>
+                        <?php if (isset($latestMovies) && $latestMovies->isNotEmpty()): ?>
+                            <?php foreach ($latestMovies as $movie): ?>
+                                <?php
+                                    $movieTitle = htmlspecialchars($movie->movie_title, ENT_QUOTES, 'UTF-8');
+                                    $movieGenre = htmlspecialchars($movie->genre, ENT_QUOTES, 'UTF-8');
+                                    $imageUrl = $movie->image ?: 'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?auto=format&fit=crop&w=900&q=80';
 
-                <article class="movie-card">
-                    <div class="poster" style="background-image: url('https://images.unsplash.com/photo-1524985069026-dd778a71c7b4?auto=format&fit=crop&w=700&q=80');"></div>
-                    <div class="movie-info">
-                        <h3>City Lights</h3>
-                        <p class="genre">Comedy</p>
-                        <span class="time">Tomorrow - 09:20 PM</span>
+                                    if ($movie->image && ! str_starts_with($movie->image, 'http')) {
+                                        $imageUrl = asset($movie->image);
+                                    }
+
+                                    $imageUrl = htmlspecialchars($imageUrl, ENT_QUOTES, 'UTF-8');
+                                    $showDate = $movie->show_date->format('M j, Y');
+                                    $showTime = date('g:i A', strtotime($movie->start_time));
+                                ?>
+                                <article class="slide-card">
+                                    <div class="slide-image">
+                                        <img src="<?php echo $imageUrl; ?>" alt="<?php echo $movieTitle; ?> poster" loading="lazy">
+                                    </div>
+                                    <div class="slide-info">
+                                        <span><?php echo $movieGenre; ?> · <?php echo htmlspecialchars($movie->movie_status, ENT_QUOTES, 'UTF-8'); ?></span>
+                                        <h3><?php echo $movieTitle; ?></h3>
+                                        <p>Hall <?php echo (int) $movie->hall_number; ?> · <?php echo $showDate; ?> · <?php echo $showTime; ?></p>
+                                    </div>
+                                </article>
+                            <?php endforeach; ?>
+                        <?php elseif (! empty($search)): ?>
+                            <article class="slide-card">
+                                <div class="slide-image">
+                                    <img src="https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?auto=format&fit=crop&w=900&q=80" alt="Empty cinema hall">
+                                </div>
+                                <div class="slide-info">
+                                    <span>No Results</span>
+                                    <h3>No Matching Movies</h3>
+                                    <p>Try another movie title or genre.</p>
+                                </div>
+                            </article>
+                        <?php else: ?>
+                            <article class="slide-card">
+                                <div class="slide-image">
+                                    <img src="https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?auto=format&fit=crop&w=900&q=80" alt="Cinema hall">
+                                </div>
+                                <div class="slide-info">
+                                    <span>Coming Soon</span>
+                                    <h3>Add Your First Movie</h3>
+                                    <p>Login to add posters, dates, seats, and ticket prices.</p>
+                                </div>
+                            </article>
+                            <article class="slide-card">
+                                <div class="slide-image">
+                                    <img src="https://images.unsplash.com/photo-1440404653325-ab127d49abc1?auto=format&fit=crop&w=900&q=80" alt="Movie camera">
+                                </div>
+                                <div class="slide-info">
+                                    <span>Dashboard Ready</span>
+                                    <h3>Manage Cinema Releases</h3>
+                                    <p>Create movie records and they will appear here automatically.</p>
+                                </div>
+                            </article>
+                        <?php endif; ?>
                     </div>
-                </article>
-            </div>
+                    <button class="slider-button next-button" type="button" data-slider-next aria-label="Next movie">&#8250;</button>
+                </div>
+                <div class="slider-dots" data-slider-dots aria-label="Choose movie"></div>
+            </section>
 
             <!-- Feature boxes explain what the CRUD system manages. -->
             <div class="features" id="showtimes">
@@ -528,5 +835,117 @@
             </div>
         </div>
     </footer>
+
+    <script>
+        const slider = document.querySelector('[data-slider]');
+
+        if (slider) {
+            const track = slider.querySelector('[data-slider-track]');
+            const slides = Array.from(track.querySelectorAll('.slide-card'));
+            const previousButton = slider.querySelector('[data-slider-prev]');
+            const nextButton = slider.querySelector('[data-slider-next]');
+            const dotsWrap = slider.parentElement.querySelector('[data-slider-dots]');
+            let activeIndex = Math.floor(slides.length / 2);
+            let touchStartX = null;
+
+            const dots = slides.map((slide, index) => {
+                const dot = document.createElement('button');
+                dot.type = 'button';
+                dot.setAttribute('aria-label', `Show movie ${index + 1}`);
+                dot.addEventListener('click', () => {
+                    activeIndex = index;
+                    updateSlider();
+                });
+                dotsWrap.appendChild(dot);
+
+                return dot;
+            });
+
+            function updateSlider() {
+                const cardSpacing = slider.clientWidth <= 560
+                    ? 155
+                    : Math.min(215, Math.max(140, slider.clientWidth * 0.2));
+
+                slides.forEach((slide, index) => {
+                    let offset = index - activeIndex;
+                    const halfwayPoint = Math.floor(slides.length / 2);
+
+                    if (offset > halfwayPoint) {
+                        offset -= slides.length;
+                    } else if (offset < -halfwayPoint) {
+                        offset += slides.length;
+                    }
+
+                    const absoluteOffset = Math.abs(offset);
+                    const scale = Math.max(0.78, 1 - (absoluteOffset * 0.09));
+                    const opacity = absoluteOffset === 0 ? 1 : (absoluteOffset === 1 ? 0.72 : 0.42);
+
+                    slide.classList.toggle('is-active', index === activeIndex);
+                    slide.classList.toggle('is-hidden', absoluteOffset > 2);
+                    slide.style.setProperty('--translate-x', `${offset * cardSpacing}px`);
+                    slide.style.setProperty('--translate-z', `${absoluteOffset * -95}px`);
+                    slide.style.setProperty('--rotation', `${offset * -9}deg`);
+                    slide.style.setProperty('--card-scale', scale);
+                    slide.style.setProperty('--card-opacity', opacity);
+                    slide.style.setProperty('--card-layer', 20 - absoluteOffset);
+                    slide.setAttribute('aria-hidden', index === activeIndex ? 'false' : 'true');
+                });
+
+                dots.forEach((dot, index) => {
+                    const isActive = index === activeIndex;
+                    dot.classList.toggle('is-active', isActive);
+                    dot.setAttribute('aria-current', isActive ? 'true' : 'false');
+                });
+            }
+
+            function showPreviousMovie() {
+                activeIndex = activeIndex === 0 ? slides.length - 1 : activeIndex - 1;
+                updateSlider();
+            }
+
+            function showNextMovie() {
+                activeIndex = activeIndex === slides.length - 1 ? 0 : activeIndex + 1;
+                updateSlider();
+            }
+
+            previousButton.addEventListener('click', showPreviousMovie);
+            nextButton.addEventListener('click', showNextMovie);
+
+            slider.addEventListener('keydown', (event) => {
+                if (event.key === 'ArrowLeft') {
+                    showPreviousMovie();
+                } else if (event.key === 'ArrowRight') {
+                    showNextMovie();
+                }
+            });
+
+            slider.addEventListener('touchstart', (event) => {
+                touchStartX = event.changedTouches[0].clientX;
+            }, { passive: true });
+
+            slider.addEventListener('touchend', (event) => {
+                if (touchStartX === null) {
+                    return;
+                }
+
+                const distance = event.changedTouches[0].clientX - touchStartX;
+
+                if (Math.abs(distance) > 45) {
+                    distance > 0 ? showPreviousMovie() : showNextMovie();
+                }
+
+                touchStartX = null;
+            }, { passive: true });
+
+            if (slides.length < 2) {
+                previousButton.hidden = true;
+                nextButton.hidden = true;
+                dotsWrap.hidden = true;
+            }
+
+            window.addEventListener('resize', updateSlider);
+            updateSlider();
+        }
+    </script>
 </body>
 </html>

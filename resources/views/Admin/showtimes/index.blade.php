@@ -64,7 +64,16 @@
                     @forelse ($showtimes as $showtime)
                         <tr>
                             <td data-label="ID">{{ $showtime->show_id }}</td>
-                            <td data-label="Movie">{{ $showtime->movie_title }}</td>
+                            <td data-label="Movie">
+                                <div class="movie-cell">
+                                    @if ($showtime->image)
+                                        <img class="movie-poster" src="{{ $showtime->image }}" alt="{{ $showtime->movie_title }} poster" loading="lazy">
+                                    @else
+                                        <span class="poster-empty">No poster</span>
+                                    @endif
+                                    <strong>{{ $showtime->movie_title }}</strong>
+                                </div>
+                            </td>
                             <td data-label="Genre">{{ $showtime->genre }}</td>
                             <td data-label="Hall">{{ $showtime->hall_number }}</td>
                             <td data-label="Date">{{ $showtime->show_date->format('Y-m-d') }}</td>
