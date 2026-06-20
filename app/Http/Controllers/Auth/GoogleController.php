@@ -38,7 +38,7 @@ class GoogleController extends Controller
         request()->session()->regenerate();
         request()->session()->put('username', $user->username);
 
-        return redirect()->route('showtimes.index');
+        return redirect()->route('user.home');
     }
 
     private function uniqueUsername(string $email, ?string $name): string
