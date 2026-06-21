@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Booking;
+use App\Models\SeatReservation;
 use App\Models\Showtime;
 use App\Models\User;
 use Carbon\Carbon;
@@ -29,6 +30,25 @@ class DatabaseSeeder extends Seeder
                 'password' => Hash::make('password'),
             ],
         );
+
+        // Create or update the standard customer account used for booking.
+        $customer = User::updateOrCreate(
+            ['username' => 'user'],
+            [
+                'name' => 'Cinema User',
+                'email' => 'user@example.com',
+                'password' => Hash::make('password'),
+            ],
+        );
+
+        // Backfill reservations made before the customer account existed so they
+        // are tied to a real user_id (they were saved with a null user_id).
+        SeatReservation::whereNull('user_id')
+            ->where('customer_name', 'user')
+            ->update([
+                'user_id' => $customer->id,
+                'customer_name' => $customer->name,
+            ]);
 
         // Remove the three placeholder records that were used by the old seeder.
         Showtime::whereIn('movie_title', [
@@ -170,9 +190,7 @@ class DatabaseSeeder extends Seeder
                 ->format('H:i');
 
             Showtime::updateOrCreate(
-                [
-                    'movie_title' => $movie['movie_name'],
-                ],
+                ['movie_title' => $movie['movie_name']],
                 [
                     'image' => $movie['image'],
                     'genre' => $movie['genre'],
@@ -268,6 +286,49 @@ class DatabaseSeeder extends Seeder
                     'payment_method' => $booking['payment_method'],
                 ],
             );
+        }
+
+        $reservations = [
+            [
+                'movie_title' => 'Inception',
+                'customer_name' => 'Kalthoum',
+                'seat_numbers' => ['A1', 'A2'],
+            ],
+            [
+                'movie_title' => 'Interstellar',
+                'customer_name' => 'malak',
+                'seat_numbers' => ['B1', 'B2', 'B3', 'B4'],
+            ],
+            [
+                'movie_title' => 'Avatar',
+                'customer_name' => 'mayar',
+                'seat_numbers' => ['C1', 'C2', 'C3'],
+            ],
+            [
+                'movie_title' => 'Frozen',
+                'customer_name' => 'rawan',
+                'seat_numbers' => ['A3', 'A4', 'A5', 'A6', 'B5'],
+            ],
+        ];
+
+        foreach ($reservations as $reservation) {
+            $showtime = Showtime::where('movie_title', $reservation['movie_title'])->first();
+
+            if (! $showtime) {
+                continue;
+            }
+
+            foreach ($reservation['seat_numbers'] as $seatNumber) {
+                SeatReservation::updateOrCreate(
+                    [
+                        'show_id' => $showtime->show_id,
+                        'seat_number' => $seatNumber,
+                    ],
+                    [
+                        'customer_name' => $reservation['customer_name'],
+                    ],
+                );
+            }
         }
     }
 }

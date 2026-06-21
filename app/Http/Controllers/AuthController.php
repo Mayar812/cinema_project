@@ -6,7 +6,7 @@ use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\View\View;
+use Illuminate\Contracts\View\View;
 
 class AuthController extends Controller
 {
@@ -40,8 +40,8 @@ class AuthController extends Controller
         // Store the username in the session so protected pages know the user is logged in.
         $request->session()->put('username', $user->username);
 
-        // Redirect to the dashboard.
-        return redirect()->route('showtimes.index');
+        // Users land on the booking home page, while the existing admin account keeps its dashboard flow.
+        return redirect()->route($user->username === 'admin' ? 'showtimes.index' : 'user.home');
     }
 
     // Handle logout and remove the login session.
