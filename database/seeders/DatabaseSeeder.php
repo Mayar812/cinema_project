@@ -30,6 +30,25 @@ class DatabaseSeeder extends Seeder
             ],
         );
 
+        // Create or update the standard customer account used for booking.
+        $customer = User::updateOrCreate(
+            ['username' => 'user'],
+            [
+                'name' => 'Cinema User',
+                'email' => 'user@example.com',
+                'password' => Hash::make('password'),
+            ],
+        );
+
+        // Backfill reservations made before the customer account existed so they
+        // are tied to a real user_id (they were saved with a null user_id).
+        SeatReservation::whereNull('user_id')
+            ->where('customer_name', 'user')
+            ->update([
+                'user_id' => $customer->id,
+                'customer_name' => $customer->name,
+            ]);
+
         // Remove the three placeholder records that were used by the old seeder.
         Showtime::whereIn('movie_title', [
             'Midnight Chase',

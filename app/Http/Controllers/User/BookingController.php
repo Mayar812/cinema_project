@@ -23,6 +23,9 @@ class BookingController extends Controller
             'bookedSeats' => $this->bookedSeats($this->reservationsFor($movie)),
             'accountName' => $this->accountName($request),
             'username' => $request->session()->get('username'),
+            // The current account's own reservations for this showtime, so they
+            // can be edited or cancelled from the booking page.
+            'userReservations' => $this->userReservationsFor($request, $movie),
         ]);
     }
 
@@ -57,6 +60,7 @@ class BookingController extends Controller
 
     public function edit(Request $request, SeatReservation $seatReservation): View
     {
+        $this->ensureOwns($request, $seatReservation);
         $movie = $seatReservation->movie;
 
         return view('reservations.edit', [
@@ -73,6 +77,7 @@ class BookingController extends Controller
 
     public function update(Request $request, SeatReservation $seatReservation): RedirectResponse
     {
+        $this->ensureOwns($request, $seatReservation);
         $movie = $seatReservation->movie;
 
         $this->normalizeSeatNumber($request);
@@ -90,8 +95,9 @@ class BookingController extends Controller
         return redirect()->route('movies.booking', $movie)->with('status', 'Reservation updated.');
     }
 
-    public function destroy(SeatReservation $seatReservation): RedirectResponse
+    public function destroy(Request $request, SeatReservation $seatReservation): RedirectResponse
     {
+        $this->ensureOwns($request, $seatReservation);
         $movie = $seatReservation->movie;
 
         DB::transaction(function () use ($seatReservation, $movie) {
@@ -101,6 +107,34 @@ class BookingController extends Controller
         });
 
         return redirect()->route('movies.booking', $movie)->with('status', 'Reservation cancelled.');
+    }
+
+    // The current account's reservations for a single showtime.
+    private function userReservationsFor(Request $request, Movie $movie): Collection
+    {
+        $user = $this->currentUser($request);
+
+        if (! $user) {
+            return collect();
+        }
+
+        return SeatReservation::query()
+            ->where('show_id', $movie->show_id)
+            ->where('user_id', $user->id)
+            ->orderBy('seat_number')
+            ->get();
+    }
+
+    // Block editing or cancelling a reservation that belongs to someone else.
+    private function ensureOwns(Request $request, SeatReservation $seatReservation): void
+    {
+        $user = $this->currentUser($request);
+
+        abort_unless(
+            $user && $seatReservation->user?->is($user),
+            403,
+            'You can only manage your own reservations.'
+        );
     }
 
     private function reservationsFor(Movie $movie): Collection
@@ -134,18 +168,23 @@ class BookingController extends Controller
         ];
     }
 
+    // The logged-in account, resolved from the session username.
+    private function currentUser(Request $request): ?User
+    {
+        return User::where('username', $request->session()->get('username'))->first();
+    }
+
     private function currentUserId(Request $request): ?int
     {
-        return User::where('username', $request->session()->get('username'))->value('id');
+        return $this->currentUser($request)?->id;
     }
 
     // The display name to book under: the account's name, or its username.
     private function accountName(Request $request): string
     {
         $username = (string) $request->session()->get('username');
-        $user = User::where('username', $username)->first();
 
-        return $user?->name ?: $username;
+        return $this->currentUser($request)?->name ?: $username;
     }
 
     private function normalizeSeatNumber(Request $request): void
