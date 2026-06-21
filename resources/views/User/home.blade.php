@@ -17,9 +17,9 @@
         .carousel { height: min(680px, calc(100vh - 72px)); min-height: 520px; position: relative; }
         .slide { position: absolute; inset: 0; opacity: 0; pointer-events: none; transition: opacity .7s ease; }
         .slide.is-active { opacity: 1; pointer-events: auto; }
-        .slide-image { position: absolute; inset: 0; }
-        .slide-image img { width: 100%; height: 100%; object-fit: cover; filter: saturate(1.05); }
-        .slide-image::after { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, rgba(7,8,13,.96) 0%, rgba(7,8,13,.66) 42%, rgba(7,8,13,.18) 100%), linear-gradient(0deg, #07080d 0%, transparent 34%); }
+        .slide-image { position: absolute; inset: 0; display: flex; align-items: center; justify-content: flex-end; padding: clamp(24px, 6vw, 72px); background: radial-gradient(circle at 74% 50%, rgba(239, 68, 68, .2), transparent 34%), #07080d; }
+        .slide-image img { width: min(34vw, 360px); max-width: calc(100% - 36px); height: min(78%, 520px); object-fit: contain; object-position: center; border-radius: 8px; filter: saturate(1.05) drop-shadow(0 28px 56px rgba(0,0,0,.55)); }
+        .slide-image::after { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, rgba(7,8,13,.97) 0%, rgba(7,8,13,.82) 46%, rgba(7,8,13,.24) 100%), linear-gradient(0deg, #07080d 0%, transparent 34%); }
         .slide-content { position: relative; z-index: 2; width: min(900px, calc(100% - 36px)); margin: 0 auto; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: flex-start; padding: 56px 0 96px; }
         .eyebrow { color: #fca5a5; font-weight: 800; text-transform: uppercase; font-size: 13px; letter-spacing: .12em; margin-bottom: 14px; }
         .slide h1 { font-size: clamp(42px, 8vw, 86px); line-height: .95; max-width: 760px; margin: 0 0 18px; letter-spacing: 0; }
@@ -53,6 +53,8 @@
         @media (max-width: 760px) {
             .nav { height: auto; min-height: 68px; align-items: flex-start; flex-direction: column; padding-top: 14px; padding-bottom: 14px; }
             .carousel, .hero { min-height: 620px; height: auto; }
+            .slide-image { justify-content: center; align-items: flex-start; padding-top: 18px; }
+            .slide-image img { width: min(54vw, 240px); height: min(42%, 280px); opacity: .6; }
             .slide-content { padding-top: 92px; }
             .carousel-control { top: auto; bottom: 22px; }
             .carousel-control.prev { left: 18px; }
