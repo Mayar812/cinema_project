@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\SeatReservation;
 use App\Models\Showtime;
 use App\Models\User;
 use Carbon\Carbon;
@@ -43,6 +44,7 @@ class DatabaseSeeder extends Seeder
                 'genre' => 'Action',
                 'duration' => 148,
                 'release_date' => '2010-07-16',
+                'show_date' => '2026-05-30',
                 'release_place' => 'Main Cinema Hall',
                 'language' => 'English',
                 'director' => 'Christopher Nolan',
@@ -57,6 +59,7 @@ class DatabaseSeeder extends Seeder
                 'genre' => 'Science Fiction',
                 'duration' => 169,
                 'release_date' => '2014-11-07',
+                'show_date' => '2026-06-03',
                 'release_place' => 'Galaxy Screen',
                 'language' => 'English',
                 'director' => 'Christopher Nolan',
@@ -71,6 +74,7 @@ class DatabaseSeeder extends Seeder
                 'genre' => 'Action',
                 'duration' => 152,
                 'release_date' => '2008-07-18',
+                'show_date' => '2026-06-10',
                 'release_place' => 'Royal Screen',
                 'language' => 'English',
                 'director' => 'Christopher Nolan',
@@ -85,6 +89,7 @@ class DatabaseSeeder extends Seeder
                 'genre' => 'Science Fiction',
                 'duration' => 162,
                 'release_date' => '2009-12-18',
+                'show_date' => '2026-06-23',
                 'release_place' => 'IMAX Hall',
                 'language' => 'English',
                 'director' => 'James Cameron',
@@ -99,6 +104,7 @@ class DatabaseSeeder extends Seeder
                 'genre' => 'Romance',
                 'duration' => 195,
                 'release_date' => '1997-12-19',
+                'show_date' => '2026-06-24',
                 'release_place' => 'Classic Cinema Hall',
                 'language' => 'English',
                 'director' => 'James Cameron',
@@ -113,6 +119,7 @@ class DatabaseSeeder extends Seeder
                 'genre' => 'Science Fiction',
                 'duration' => 136,
                 'release_date' => '1999-03-31',
+                'show_date' => '2026-06-25',
                 'release_place' => 'Digital Screen',
                 'language' => 'English',
                 'director' => 'The Wachowskis',
@@ -127,6 +134,7 @@ class DatabaseSeeder extends Seeder
                 'genre' => 'Drama',
                 'duration' => 122,
                 'release_date' => '2019-10-04',
+                'show_date' => '2026-06-26',
                 'release_place' => 'Drama Hall',
                 'language' => 'English',
                 'director' => 'Todd Phillips',
@@ -141,6 +149,7 @@ class DatabaseSeeder extends Seeder
                 'genre' => 'Animation',
                 'duration' => 102,
                 'release_date' => '2013-11-27',
+                'show_date' => '2026-06-27',
                 'release_place' => 'Family Screen',
                 'language' => 'Italian',
                 'director' => 'Chris Buck and Jennifer Lee',
@@ -160,24 +169,65 @@ class DatabaseSeeder extends Seeder
                 ->addMinutes($movie['duration'])
                 ->format('H:i');
 
-            // The show date is the upcoming screening date (not the release date),
-            // so each movie is scheduled on a distinct day over the coming week.
-            $showDate = Carbon::today()->addDays($index + 1)->format('Y-m-d');
-
             Showtime::updateOrCreate(
                 ['movie_title' => $movie['movie_name']],
                 [
                     'image' => $movie['image'],
                     'genre' => $movie['genre'],
                     'hall_number' => $index + 1,
-                    'show_date' => $showDate,
+                    'show_date' => $movie['show_date'],
                     'start_time' => $startTime,
                     'end_time' => $endTime,
                     'available_seats' => $movie['available_seats'],
                     'ticket_price' => $movie['ticket_price'],
-                    'movie_status' => 'Showing',
+                    'movie_status' => Carbon::parse($movie['show_date'])->isAfter(Carbon::today())
+                        ? 'Coming Soon'
+                        : 'Showing',
                 ],
             );
+        }
+
+        $reservations = [
+            [
+                'movie_title' => 'Inception',
+                'customer_name' => 'Kalthoum',
+                'seat_numbers' => ['A1', 'A2'],
+            ],
+            [
+                'movie_title' => 'Interstellar',
+                'customer_name' => 'malak',
+                'seat_numbers' => ['B1', 'B2', 'B3', 'B4'],
+            ],
+            [
+                'movie_title' => 'Avatar',
+                'customer_name' => 'mayar',
+                'seat_numbers' => ['C1', 'C2', 'C3'],
+            ],
+            [
+                'movie_title' => 'Frozen',
+                'customer_name' => 'rawan',
+                'seat_numbers' => ['A3', 'A4', 'A5', 'A6', 'B5'],
+            ],
+        ];
+
+        foreach ($reservations as $reservation) {
+            $showtime = Showtime::where('movie_title', $reservation['movie_title'])->first();
+
+            if (! $showtime) {
+                continue;
+            }
+
+            foreach ($reservation['seat_numbers'] as $seatNumber) {
+                SeatReservation::updateOrCreate(
+                    [
+                        'show_id' => $showtime->show_id,
+                        'seat_number' => $seatNumber,
+                    ],
+                    [
+                        'customer_name' => $reservation['customer_name'],
+                    ],
+                );
+            }
         }
     }
 }
