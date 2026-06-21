@@ -109,14 +109,18 @@ class BookingController extends Controller
         return redirect()->route('movies.booking', $movie)->with('status', 'Reservation cancelled.');
     }
 
-    // The current account's reservations for a single showtime. The "user" login
-    // is hardcoded and has no users-table row, so reservations are identified by
-    // the booking account name (customer_name) rather than user_id.
+    // The current account's reservations for a single showtime.
     private function userReservationsFor(Request $request, Movie $movie): Collection
     {
+        $user = $this->currentUser($request);
+
+        if (! $user) {
+            return collect();
+        }
+
         return SeatReservation::query()
             ->where('show_id', $movie->show_id)
-            ->where('customer_name', $this->accountName($request))
+            ->where('user_id', $user->id)
             ->orderBy('seat_number')
             ->get();
     }
@@ -124,8 +128,10 @@ class BookingController extends Controller
     // Block editing or cancelling a reservation that belongs to someone else.
     private function ensureOwns(Request $request, SeatReservation $seatReservation): void
     {
+        $user = $this->currentUser($request);
+
         abort_unless(
-            $seatReservation->customer_name === $this->accountName($request),
+            $user && $seatReservation->user?->is($user),
             403,
             'You can only manage your own reservations.'
         );
@@ -162,18 +168,23 @@ class BookingController extends Controller
         ];
     }
 
+    // The logged-in account, resolved from the session username.
+    private function currentUser(Request $request): ?User
+    {
+        return User::where('username', $request->session()->get('username'))->first();
+    }
+
     private function currentUserId(Request $request): ?int
     {
-        return User::where('username', $request->session()->get('username'))->value('id');
+        return $this->currentUser($request)?->id;
     }
 
     // The display name to book under: the account's name, or its username.
     private function accountName(Request $request): string
     {
         $username = (string) $request->session()->get('username');
-        $user = User::where('username', $username)->first();
 
-        return $user?->name ?: $username;
+        return $this->currentUser($request)?->name ?: $username;
     }
 
     private function normalizeSeatNumber(Request $request): void
