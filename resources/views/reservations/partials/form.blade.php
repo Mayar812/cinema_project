@@ -29,26 +29,26 @@
 <div class="grid gap-4 md:grid-cols-3">
     <label class="block">
         <span class="text-sm font-semibold text-neutral-200">Chair type</span>
-        <select name="chair_type" required class="mt-2 w-full rounded-2xl border border-white/10 bg-neutral-900/80 px-4 py-3 text-neutral-100 outline-none">
-            <option value="Premium" @selected($chairType === 'Premium')>Premium</option>
-            <option value="VIP" @selected($chairType === 'VIP')>VIP</option>
+        <select name="chair_type" required class="mt-2 w-full rounded-2xl border border-white/10 bg-neutral-900/80 px-4 py-3 text-neutral-100 outline-none" style="background-color: #0a0a0a; color: #ffffff; color-scheme: dark;">
+            <option style="background-color: #0a0a0a; color: #ffffff;" value="Premium" @selected($chairType === 'Premium')>Premium</option>
+            <option style="background-color: #0a0a0a; color: #ffffff;" value="VIP" @selected($chairType === 'VIP')>VIP</option>
         </select>
     </label>
 
     <label class="block">
         <span class="text-sm font-semibold text-neutral-200">Snacks</span>
-        <select name="snacks" class="mt-2 w-full rounded-2xl border border-white/10 bg-neutral-900/80 px-4 py-3 text-neutral-100 outline-none">
+        <select name="snacks" class="mt-2 w-full rounded-2xl border border-white/10 bg-neutral-900/80 px-4 py-3 text-neutral-100 outline-none" style="background-color: #0a0a0a; color: #ffffff; color-scheme: dark;">
             @foreach (['None', 'Popcorn combo', 'Nachos', 'Cola', 'Kids popcorn'] as $snackOption)
-                <option value="{{ $snackOption }}" @selected($snacks === $snackOption)>{{ $snackOption }}</option>
+                <option style="background-color: #0a0a0a; color: #ffffff;" value="{{ $snackOption }}" @selected($snacks === $snackOption)>{{ $snackOption }}</option>
             @endforeach
         </select>
     </label>
 
     <label class="block">
         <span class="text-sm font-semibold text-neutral-200">Payment</span>
-        <select name="payment_method" required class="mt-2 w-full rounded-2xl border border-white/10 bg-neutral-900/80 px-4 py-3 text-neutral-100 outline-none">
+        <select name="payment_method" required class="mt-2 w-full rounded-2xl border border-white/10 bg-neutral-900/80 px-4 py-3 text-neutral-100 outline-none" style="background-color: #0a0a0a; color: #ffffff; color-scheme: dark;">
             @foreach (['Visa', 'Mastercard', 'Cash'] as $paymentOption)
-                <option value="{{ $paymentOption }}" @selected($paymentMethod === $paymentOption)>{{ $paymentOption }}</option>
+                <option style="background-color: #0a0a0a; color: #ffffff;" value="{{ $paymentOption }}" @selected($paymentMethod === $paymentOption)>{{ $paymentOption }}</option>
             @endforeach
         </select>
     </label>
