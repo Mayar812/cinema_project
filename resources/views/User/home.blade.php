@@ -49,6 +49,15 @@
         .movie-info { padding: 16px; }
         .movie-info h3 { margin: 0 0 10px; font-size: 20px; letter-spacing: 0; }
         .movie-details { display: grid; gap: 7px; color: #cbd5e1; font-size: 14px; margin-bottom: 16px; }
+        .booking-status-list { display: grid; gap: 12px; margin-bottom: 34px; }
+        .booking-status-card { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 14px; align-items: center; border: 1px solid rgba(255,255,255,.1); background: rgba(17,19,27,.78); border-radius: 8px; padding: 14px 16px; }
+        .booking-status-card strong, .booking-status-card span { display: block; }
+        .booking-status-card strong { font-size: 18px; }
+        .booking-status-card span { margin-top: 4px; color: #cbd5e1; font-size: 14px; }
+        .booking-status-pill { border-radius: 999px; padding: 7px 11px; font-size: 12px; font-weight: 900; text-transform: uppercase; }
+        .booking-status-pending { border: 1px solid rgba(245,158,11,.42); background: rgba(245,158,11,.12); color: #fde68a; }
+        .booking-status-accepted { border: 1px solid rgba(16,185,129,.42); background: rgba(16,185,129,.12); color: #a7f3d0; }
+        .booking-status-rejected { border: 1px solid rgba(239,68,68,.42); background: rgba(239,68,68,.12); color: #fecaca; }
         .empty-state { border: 1px dashed rgba(255,255,255,.18); border-radius: 8px; padding: 36px; color: #cbd5e1; background: rgba(255,255,255,.04); }
         @media (max-width: 760px) {
             .nav { height: auto; min-height: 68px; align-items: flex-start; flex-direction: column; padding-top: 14px; padding-bottom: 14px; }
@@ -61,6 +70,7 @@
             .carousel-control.next { right: 18px; }
             .dots { bottom: 42px; }
             .section-header { align-items: flex-start; flex-direction: column; }
+            .booking-status-card { grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -129,6 +139,32 @@
             </section>
 
             <section class="section" aria-labelledby="available-movies">
+                @if ($userBookings->isNotEmpty())
+                    <div class="section-header">
+                        <div>
+                            <h2>My Booking Status</h2>
+                            <p>Admin approval status for your latest movie bookings.</p>
+                        </div>
+                    </div>
+
+                    <div class="booking-status-list">
+                        @foreach ($userBookings as $booking)
+                            <article class="booking-status-card">
+                                <div>
+                                    <strong>{{ $booking->showtime?->movie_title ?? 'Deleted movie' }}</strong>
+                                    <span>
+                                        Seat {{ $booking->seat_numbers }} /
+                                        {{ $booking->chair_type }} /
+                                        {{ $booking->snacks ?: 'No snacks' }} /
+                                        {{ ucfirst($booking->payment_status) }}{{ $booking->payment_method ? ' by '.$booking->payment_method : '' }}
+                                    </span>
+                                </div>
+                                <span class="booking-status-pill booking-status-{{ $booking->status }}">{{ ucfirst($booking->status) }}</span>
+                            </article>
+                        @endforeach
+                    </div>
+                @endif
+
                 <div class="section-header">
                     <div>
                         <h2 id="available-movies">Available Movies</h2>

@@ -12,6 +12,7 @@ class SeatReservation extends Model
 
     protected $fillable = [
         'user_id',
+        'booking_id',
         'show_id',
         'customer_name',
         'seat_number',
@@ -26,5 +27,10 @@ class SeatReservation extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function booking(): BelongsTo
+    {
+        return $this->belongsTo(Booking::class);
     }
 }

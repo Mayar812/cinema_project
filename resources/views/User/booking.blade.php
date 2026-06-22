@@ -88,8 +88,26 @@
 
                 <ul class="mt-5 space-y-3">
                     @foreach ($userReservations as $reservation)
+                        @php
+                            $bookingStatus = $reservation->booking?->status ?? 'pending';
+                            $statusClass = match ($bookingStatus) {
+                                'accepted' => 'border-emerald-300/40 bg-emerald-400/10 text-emerald-100',
+                                'rejected' => 'border-red-300/40 bg-red-500/10 text-red-100',
+                                default => 'border-amber-300/40 bg-amber-400/10 text-amber-100',
+                            };
+                        @endphp
                         <li class="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-white/10 bg-neutral-950/70 px-4 py-3">
-                            <span class="text-lg font-black text-white">Seat {{ strtoupper($reservation->seat_number) }}</span>
+                            <div>
+                                <span class="text-lg font-black text-white">Seat {{ strtoupper($reservation->seat_number) }}</span>
+                                <div class="mt-1 flex flex-wrap gap-2 text-xs font-semibold text-neutral-300">
+                                    <span class="rounded-full border border-white/10 px-2 py-1">{{ $reservation->booking?->chair_type ?? 'Premium' }}</span>
+                                    <span class="rounded-full border border-white/10 px-2 py-1">{{ $reservation->booking?->snacks ?: 'No snacks' }}</span>
+                                    <span class="rounded-full border border-white/10 px-2 py-1">{{ $reservation->booking?->payment_method ?? 'Payment not set' }}</span>
+                                    <span class="rounded-full border px-2 py-1 {{ $statusClass }}">
+                                        {{ ucfirst($bookingStatus) }}
+                                    </span>
+                                </div>
+                            </div>
                             <div class="flex items-center gap-2">
                                 <a href="{{ route('reservations.edit', $reservation) }}" class="rounded-full border border-white/15 px-4 py-2 text-sm font-semibold text-neutral-100 transition hover:border-[#E50914] hover:text-red-300">
                                     Edit

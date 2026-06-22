@@ -4,6 +4,10 @@
     $bookedSeats = collect($bookedSeats ?? [])->map(fn ($seat) => strtoupper($seat));
     $currentSeat = strtoupper(old('seat_number', $reservation?->seat_number ?? ''));
     $customerName = $reservation?->customer_name ?? $accountName;
+    $booking = $booking ?? $reservation?->booking;
+    $chairType = old('chair_type', $booking?->chair_type ?? 'Premium');
+    $snacks = old('snacks', $booking?->snacks ?? 'None');
+    $paymentMethod = old('payment_method', $booking?->payment_method ?? 'Visa');
     $seatRows = config('cinema.seat_rows');
     $seatColumns = config('cinema.seat_columns');
     $totalSeats = count($seatRows) * count($seatColumns);
@@ -21,6 +25,34 @@
     >
     <span class="mt-2 block text-xs text-neutral-400">Booked under your account.</span>
 </label>
+
+<div class="grid gap-4 md:grid-cols-3">
+    <label class="block">
+        <span class="text-sm font-semibold text-neutral-200">Chair type</span>
+        <select name="chair_type" required class="mt-2 w-full rounded-2xl border border-white/10 bg-neutral-900/80 px-4 py-3 text-neutral-100 outline-none">
+            <option value="Premium" @selected($chairType === 'Premium')>Premium</option>
+            <option value="VIP" @selected($chairType === 'VIP')>VIP</option>
+        </select>
+    </label>
+
+    <label class="block">
+        <span class="text-sm font-semibold text-neutral-200">Snacks</span>
+        <select name="snacks" class="mt-2 w-full rounded-2xl border border-white/10 bg-neutral-900/80 px-4 py-3 text-neutral-100 outline-none">
+            @foreach (['None', 'Popcorn combo', 'Nachos', 'Cola', 'Kids popcorn'] as $snackOption)
+                <option value="{{ $snackOption }}" @selected($snacks === $snackOption)>{{ $snackOption }}</option>
+            @endforeach
+        </select>
+    </label>
+
+    <label class="block">
+        <span class="text-sm font-semibold text-neutral-200">Payment</span>
+        <select name="payment_method" required class="mt-2 w-full rounded-2xl border border-white/10 bg-neutral-900/80 px-4 py-3 text-neutral-100 outline-none">
+            @foreach (['Visa', 'Mastercard', 'Cash'] as $paymentOption)
+                <option value="{{ $paymentOption }}" @selected($paymentMethod === $paymentOption)>{{ $paymentOption }}</option>
+            @endforeach
+        </select>
+    </label>
+</div>
 
 <div class="rounded-2xl border border-red-600/30 bg-red-950/30 px-4 py-3">
     <span class="text-sm font-semibold text-neutral-200">Selected seat</span>

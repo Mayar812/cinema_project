@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\Movie;
+use App\Models\Booking;
 use App\Models\SeatReservation;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -58,13 +59,29 @@ class BookingReservationTest extends TestCase
         $movie = $this->showing(seats: 10);
 
         $this->withSession(['username' => 'user', 'role' => 'user'])
-            ->post(route('movies.booking.store', $movie), ['seat_number' => 'A1'])
+            ->post(route('movies.booking.store', $movie), [
+                'seat_number' => 'A1',
+                'chair_type' => 'VIP',
+                'snacks' => 'Popcorn combo',
+                'payment_method' => 'Visa',
+            ])
             ->assertRedirect(route('movies.booking', $movie));
 
         $this->assertDatabaseHas('seat_reservations', [
             'user_id' => $user->id,
             'show_id' => $movie->show_id,
             'seat_number' => 'A1',
+        ]);
+
+        $this->assertDatabaseHas('bookings', [
+            'user_id' => $user->id,
+            'showtime_id' => $movie->show_id,
+            'seat_numbers' => 'A1',
+            'chair_type' => 'VIP',
+            'snacks' => 'Popcorn combo',
+            'status' => 'pending',
+            'payment_status' => 'paid',
+            'payment_method' => 'Visa',
         ]);
 
         // Booking decrements the showtime's remaining seats.
@@ -75,8 +92,23 @@ class BookingReservationTest extends TestCase
     {
         $user = $this->user();
         $movie = $this->showing();
+        $booking = Booking::create([
+            'user_id' => $user->id,
+            'showtime_id' => $movie->show_id,
+            'customer_name' => $user->name,
+            'customer_email' => $user->email,
+            'chair_type' => 'Premium',
+            'chair_count' => 1,
+            'seat_numbers' => 'B2',
+            'snacks' => null,
+            'status' => 'accepted',
+            'payment_status' => 'paid',
+            'payment_amount' => 19,
+            'payment_method' => 'Visa',
+        ]);
         $reservation = SeatReservation::create([
             'user_id' => $user->id,
+            'booking_id' => $booking->id,
             'show_id' => $movie->show_id,
             'customer_name' => $user->name,
             'seat_number' => 'B2',
@@ -87,6 +119,7 @@ class BookingReservationTest extends TestCase
             ->assertOk()
             ->assertSee('Your reservations')
             ->assertSee('Seat B2')
+            ->assertSee('Accepted')
             ->assertSee(route('reservations.edit', $reservation))
             ->assertSee(route('reservations.destroy', $reservation));
     }
@@ -124,9 +157,16 @@ class BookingReservationTest extends TestCase
         ]);
 
         $this->withSession(['username' => 'user', 'role' => 'user'])
-            ->put(route('reservations.update', $reservation), ['seat_number' => 'A2'])
+            ->put(route('reservations.update', $reservation), [
+                'seat_number' => 'A2',
+                'chair_type' => 'Premium',
+                'snacks' => 'None',
+                'payment_method' => 'Cash',
+            ])
             ->assertRedirect(route('movies.booking', $movie));
         $this->assertSame('A2', $reservation->fresh()->seat_number);
+        $this->assertSame('A2', $reservation->fresh()->booking->seat_numbers);
+        $this->assertSame('pending', $reservation->fresh()->booking->status);
 
         $this->withSession(['username' => 'user', 'role' => 'user'])
             ->delete(route('reservations.destroy', $reservation))

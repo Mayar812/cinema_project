@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 #[Fillable([
+    'user_id',
     'showtime_id',
     'customer_name',
     'customer_email',
@@ -27,6 +28,11 @@ class Booking extends Model
     public function showtime(): BelongsTo
     {
         return $this->belongsTo(Showtime::class, 'showtime_id', 'show_id');
+    }
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
     }
 
     protected function casts(): array

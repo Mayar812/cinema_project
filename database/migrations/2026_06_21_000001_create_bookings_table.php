@@ -10,6 +10,7 @@ return new class extends Migration
     {
         Schema::create('bookings', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('user_id')->nullable()->constrained()->nullOnDelete();
             $table->unsignedInteger('showtime_id');
             $table->string('customer_name', 100);
             $table->string('customer_email', 150);

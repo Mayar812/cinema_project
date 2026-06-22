@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
+use App\Models\Booking;
 use App\Models\Movie;
 use App\Models\SeatReservation;
 use App\Models\User;
@@ -42,8 +43,12 @@ class BookingController extends Controller
         $data = $request->validate($this->rules($movie));
 
         DB::transaction(function () use ($movie, $data, $request) {
+            $user = $this->currentUser($request);
+            $booking = Booking::create($this->bookingData($movie, $data, $user));
+
             SeatReservation::create([
                 'user_id' => $this->currentUserId($request),
+                'booking_id' => $booking->id,
                 'show_id' => $movie->show_id,
                 'customer_name' => $data['customer_name'],
                 'seat_number' => $data['seat_number'],
@@ -55,7 +60,7 @@ class BookingController extends Controller
 
         return redirect()
             ->route('movies.booking', $movie)
-            ->with('status', 'Seat '.$data['seat_number'].' reserved for '.$data['customer_name'].'.');
+            ->with('status', 'Seat '.$data['seat_number'].' sent to admin for approval.');
     }
 
     public function edit(Request $request, SeatReservation $seatReservation): View
@@ -72,6 +77,7 @@ class BookingController extends Controller
             ),
             'accountName' => $seatReservation->customer_name,
             'username' => $request->session()->get('username'),
+            'booking' => $seatReservation->booking,
         ]);
     }
 
@@ -85,14 +91,25 @@ class BookingController extends Controller
         $request->merge(['customer_name' => $seatReservation->customer_name]);
         $data = $request->validate($this->rules($movie, $seatReservation));
 
-        // Only the customer and seat can change; the showtime stays the same,
-        // so available_seats is unaffected.
-        $seatReservation->update([
-            'customer_name' => $data['customer_name'],
-            'seat_number' => $data['seat_number'],
-        ]);
+        DB::transaction(function () use ($movie, $data, $request, $seatReservation) {
+            $booking = $seatReservation->booking;
 
-        return redirect()->route('movies.booking', $movie)->with('status', 'Reservation updated.');
+            if (! $booking) {
+                $booking = Booking::create($this->bookingData($movie, $data, $this->currentUser($request)));
+            } else {
+                $booking->update($this->bookingData($movie, $data, $this->currentUser($request)));
+            }
+
+            // Only the customer and seat can change; the showtime stays the same,
+            // so available_seats is unaffected.
+            $seatReservation->update([
+                'booking_id' => $booking->id,
+                'customer_name' => $data['customer_name'],
+                'seat_number' => $data['seat_number'],
+            ]);
+        });
+
+        return redirect()->route('movies.booking', $movie)->with('status', 'Reservation updated and sent back to admin as pending.');
     }
 
     public function destroy(Request $request, SeatReservation $seatReservation): RedirectResponse
@@ -101,7 +118,9 @@ class BookingController extends Controller
         $movie = $seatReservation->movie;
 
         DB::transaction(function () use ($seatReservation, $movie) {
+            $booking = $seatReservation->booking;
             $seatReservation->delete();
+            $booking?->delete();
             // Cancelling a reservation frees the seat again.
             $movie?->increment('available_seats');
         });
@@ -119,6 +138,7 @@ class BookingController extends Controller
         }
 
         return SeatReservation::query()
+            ->with('booking')
             ->where('show_id', $movie->show_id)
             ->where('user_id', $user->id)
             ->orderBy('seat_number')
@@ -165,6 +185,31 @@ class BookingController extends Controller
         return [
             'customer_name' => ['required', 'string', 'max:80'],
             'seat_number' => ['required', 'string', 'max:2', 'regex:/^[ABC][1-6]$/', $uniqueSeat],
+            'chair_type' => ['required', Rule::in(['VIP', 'Premium'])],
+            'snacks' => ['nullable', Rule::in(['Popcorn combo', 'Nachos', 'Cola', 'Kids popcorn', 'None'])],
+            'payment_method' => ['required', Rule::in(['Visa', 'Mastercard', 'Cash'])],
+        ];
+    }
+
+    private function bookingData(Movie $movie, array $data, ?User $user): array
+    {
+        $snacks = ($data['snacks'] ?? null) === 'None' ? null : ($data['snacks'] ?? null);
+        $chairFee = $data['chair_type'] === 'VIP' ? 8 : 4;
+        $snackFee = $snacks ? 7 : 0;
+
+        return [
+            'user_id' => $user?->id,
+            'showtime_id' => $movie->show_id,
+            'customer_name' => $data['customer_name'],
+            'customer_email' => $user?->email ?? 'guest@example.com',
+            'chair_type' => $data['chair_type'],
+            'chair_count' => 1,
+            'seat_numbers' => $data['seat_number'],
+            'snacks' => $snacks,
+            'status' => 'pending',
+            'payment_status' => $data['payment_method'] === 'Cash' ? 'unpaid' : 'paid',
+            'payment_amount' => (float) $movie->ticket_price + $chairFee + $snackFee,
+            'payment_method' => $data['payment_method'],
         ];
     }
 

@@ -31,7 +31,7 @@
             <form method="POST" action="{{ route('reservations.update', $reservation) }}" class="space-y-4">
                 @csrf
                 @method('PUT')
-                @include('reservations.partials.form', ['reservation' => $reservation, 'buttonText' => 'Update Reservation', 'bookedSeats' => $bookedSeats])
+                @include('reservations.partials.form', ['reservation' => $reservation, 'booking' => $booking, 'buttonText' => 'Update Reservation', 'bookedSeats' => $bookedSeats])
             </form>
         </div>
     </section>

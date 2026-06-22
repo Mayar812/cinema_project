@@ -274,6 +274,7 @@ class DatabaseSeeder extends Seeder
                 ],
                 [
                     'customer_name' => $booking['customer_name'],
+                    'user_id' => null,
                     'chair_type' => $booking['chair_type'],
                     'chair_count' => $booking['chair_count'],
                     'seat_numbers' => $booking['seat_numbers'],
@@ -317,12 +318,21 @@ class DatabaseSeeder extends Seeder
             }
 
             foreach ($reservation['seat_numbers'] as $seatNumber) {
+                $booking = Booking::where('showtime_id', $showtime->show_id)
+                    ->get()
+                    ->first(function (Booking $booking) use ($seatNumber) {
+                        return collect(explode(',', (string) $booking->seat_numbers))
+                            ->map(fn ($seat) => trim($seat))
+                            ->contains($seatNumber);
+                    });
+
                 SeatReservation::updateOrCreate(
                     [
                         'show_id' => $showtime->show_id,
                         'seat_number' => $seatNumber,
                     ],
                     [
+                        'booking_id' => $booking?->id,
                         'customer_name' => $reservation['customer_name'],
                     ],
                 );
