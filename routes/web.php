@@ -60,8 +60,8 @@ Route::get('auth/google', [GoogleController::class, 'redirectToGoogle'])
 
 Route::get('auth/google/callback', [GoogleController::class, 'handleGoogleCallback']);
 
-// These showtime CRUD routes are protected by the username session middleware.
-Route::middleware('username.session')->group(function () {
+// Customer home, booking, and reservation routes require the user role.
+Route::middleware('username.session:user')->group(function () {
     Route::get('/home', [HomeController::class, 'index'])->name('user.home');
 
     // Seat booking is scoped to one showtime (movie); reservations belong to it.
@@ -70,8 +70,10 @@ Route::middleware('username.session')->group(function () {
     Route::get('/reservations/{seatReservation}/edit', [UserBookingController::class, 'edit'])->name('reservations.edit');
     Route::put('/reservations/{seatReservation}', [UserBookingController::class, 'update'])->name('reservations.update');
     Route::delete('/reservations/{seatReservation}', [UserBookingController::class, 'destroy'])->name('reservations.destroy');
+});
 
-    // Admin-facing booking management and calendar.
+// Dashboard, calendar, booking management, and CRUD routes require the admin role.
+Route::middleware('username.session:admin')->group(function () {
     Route::get('/calendar', [ShowtimeController::class, 'calendar'])->name('calendar');
     Route::get('/bookings', [BookingController::class, 'index'])->name('bookings.index');
     Route::patch('/bookings/{booking}/status', [BookingController::class, 'updateStatus'])->name('bookings.status');

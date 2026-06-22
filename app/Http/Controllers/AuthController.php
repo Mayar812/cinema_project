@@ -3,10 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Contracts\View\View;
 
 class AuthController extends Controller
 {
@@ -37,16 +38,21 @@ class AuthController extends Controller
 
         // Regenerate the session ID after login for better security.
         $request->session()->regenerate();
-        // Store the username in the session so protected pages know the user is logged in.
-        $request->session()->put('username', $user->username);
+        Auth::login($user);
+        // Store identity and role so middleware can authorize each application area.
+        $request->session()->put([
+            'user_id' => $user->id,
+            'username' => $user->username,
+            'role' => $user->role,
+        ]);
 
-        // Users land on the booking home page, while the existing admin account keeps its dashboard flow.
-        return redirect()->route($user->username === 'admin' ? 'showtimes.index' : 'user.home');
+        return redirect()->route($user->role === 'admin' ? 'showtimes.index' : 'user.home');
     }
 
     // Handle logout and remove the login session.
     public function logout(Request $request): RedirectResponse
     {
+        Auth::logout();
         // Remove the custom username value from the session.
         $request->session()->forget('username');
         // Invalidate the whole session so old session data cannot be reused.

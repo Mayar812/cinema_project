@@ -20,26 +20,24 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // Create or update the admin user used for logging in during testing.
-        User::updateOrCreate(
-            ['username' => 'admin'],
-            [
-                'name' => 'Cinema Admin',
-                'email' => 'admin@example.com',
-                // Hash the password before saving it to the database.
-                'password' => Hash::make('password'),
-            ],
-        );
+        // Create the role-based accounts defined in config/cinema_accounts.php.
+        $accounts = collect(config('cinema_accounts.accounts'))
+            ->mapWithKeys(function (array $account) {
+                $user = User::updateOrCreate(
+                    ['username' => $account['username']],
+                    [
+                        'name' => $account['name'],
+                        'email' => $account['email'],
+                        'role' => $account['role'],
+                        // Hash the code-defined password before database storage.
+                        'password' => Hash::make($account['password']),
+                    ],
+                );
 
-        // Create or update the standard customer account used for booking.
-        $customer = User::updateOrCreate(
-            ['username' => 'user'],
-            [
-                'name' => 'Cinema User',
-                'email' => 'user@example.com',
-                'password' => Hash::make('password'),
-            ],
-        );
+                return [$account['role'] => $user];
+            });
+
+        $customer = $accounts->get('user');
 
         // Backfill reservations made before the customer account existed so they
         // are tied to a real user_id (they were saved with a null user_id).

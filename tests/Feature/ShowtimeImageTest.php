@@ -15,7 +15,7 @@ class ShowtimeImageTest extends TestCase
 
     public function test_the_form_has_file_and_omdb_poster_inputs(): void
     {
-        $this->withSession(['username' => 'admin'])
+        $this->withSession(['username' => 'admin', 'role' => 'admin'])
             ->get(route('showtimes.create'))
             ->assertOk()
             ->assertSee('id="image_file" type="file" name="image_file"', false)
@@ -26,7 +26,7 @@ class ShowtimeImageTest extends TestCase
     {
         $image = 'https://example.com/inception-poster.jpg';
 
-        $response = $this->withSession(['username' => 'admin'])
+        $response = $this->withSession(['username' => 'admin', 'role' => 'admin'])
             ->post(route('showtimes.store'), $this->showtimeData(['image' => $image]));
 
         $response->assertRedirect(route('showtimes.index'));
@@ -43,7 +43,7 @@ class ShowtimeImageTest extends TestCase
         ]));
 
         $newImage = 'https://example.com/new-poster.jpg';
-        $response = $this->withSession(['username' => 'admin'])
+        $response = $this->withSession(['username' => 'admin', 'role' => 'admin'])
             ->put(route('showtimes.update', $showtime), $this->showtimeData([
                 'image' => $newImage,
             ]));
@@ -59,7 +59,7 @@ class ShowtimeImageTest extends TestCase
     {
         Storage::fake('public');
 
-        $response = $this->withSession(['username' => 'admin'])
+        $response = $this->withSession(['username' => 'admin', 'role' => 'admin'])
             ->post(route('showtimes.store'), $this->showtimeData([
                 'image_file' => UploadedFile::fake()->image('poster.jpg', 400, 600),
                 'image_changed' => '1',

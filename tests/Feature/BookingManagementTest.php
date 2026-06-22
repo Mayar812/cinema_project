@@ -21,7 +21,7 @@ class BookingManagementTest extends TestCase
     {
         $this->createBooking();
 
-        $this->withSession(['username' => 'admin'])
+        $this->withSession(['username' => 'admin', 'role' => 'admin'])
             ->get(route('bookings.index'))
             ->assertOk()
             ->assertSee('Booking Management')
@@ -40,7 +40,7 @@ class BookingManagementTest extends TestCase
     {
         $booking = $this->createBooking();
 
-        $this->withSession(['username' => 'admin'])
+        $this->withSession(['username' => 'admin', 'role' => 'admin'])
             ->patch(route('bookings.status', $booking), ['status' => 'accepted'])
             ->assertRedirect(route('bookings.index'));
 

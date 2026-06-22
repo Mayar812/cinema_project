@@ -3,11 +3,11 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use Laravel\Socialite\Facades\Socialite;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
+use Laravel\Socialite\Facades\Socialite;
 
 class GoogleController extends Controller
 {
@@ -29,6 +29,7 @@ class GoogleController extends Controller
         if (! $user->exists) {
             $user->username = $this->uniqueUsername($googleUser->getEmail(), $googleUser->getName());
             $user->password = Str::password();
+            $user->role = 'user';
         }
 
         $user->save();
@@ -36,7 +37,11 @@ class GoogleController extends Controller
         // Login user
         Auth::login($user, true);
         request()->session()->regenerate();
-        request()->session()->put('username', $user->username);
+        request()->session()->put([
+            'user_id' => $user->id,
+            'username' => $user->username,
+            'role' => $user->role,
+        ]);
 
         return redirect()->route('user.home');
     }

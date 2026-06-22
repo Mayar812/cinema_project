@@ -21,7 +21,7 @@ class MovieCalendarTest extends TestCase
     {
         $showtime = $this->createShowtime();
 
-        $this->withSession(['username' => 'admin'])
+        $this->withSession(['username' => 'admin', 'role' => 'admin'])
             ->get(route('calendar', ['month' => '2026-07']))
             ->assertOk()
             ->assertSee('Movie Calendar')
@@ -34,7 +34,7 @@ class MovieCalendarTest extends TestCase
 
     public function test_admin_index_contains_showtime_and_calendar_sidebar_links(): void
     {
-        $this->withSession(['username' => 'admin'])
+        $this->withSession(['username' => 'admin', 'role' => 'admin'])
             ->get(route('showtimes.index'))
             ->assertOk()
             ->assertSee('Dashboard')
@@ -63,7 +63,7 @@ class MovieCalendarTest extends TestCase
     {
         $this->seed();
 
-        $this->withSession(['username' => 'admin'])
+        $this->withSession(['username' => 'admin', 'role' => 'admin'])
             ->get(route('calendar'))
             ->assertOk()
             ->assertSee('June 2026')

@@ -18,6 +18,7 @@ class BookingReservationTest extends TestCase
         return User::create([
             'name' => ucfirst($username),
             'username' => $username,
+            'role' => 'user',
             'email' => $username.'@example.com',
             'password' => Hash::make('password'),
         ]);
@@ -45,6 +46,7 @@ class BookingReservationTest extends TestCase
         $this->post(route('login.store'), ['username' => 'user', 'password' => 'password'])
             ->assertRedirect(route('user.home'));
         $this->assertSame('user', session('username'));
+        $this->assertSame('user', session('role'));
 
         $this->post(route('login.store'), ['username' => 'user', 'password' => 'wrong'])
             ->assertSessionHasErrors('username');
@@ -55,7 +57,7 @@ class BookingReservationTest extends TestCase
         $user = $this->user();
         $movie = $this->showing(seats: 10);
 
-        $this->withSession(['username' => 'user'])
+        $this->withSession(['username' => 'user', 'role' => 'user'])
             ->post(route('movies.booking.store', $movie), ['seat_number' => 'A1'])
             ->assertRedirect(route('movies.booking', $movie));
 
@@ -80,7 +82,7 @@ class BookingReservationTest extends TestCase
             'seat_number' => 'B2',
         ]);
 
-        $this->withSession(['username' => 'user'])
+        $this->withSession(['username' => 'user', 'role' => 'user'])
             ->get(route('movies.booking', $movie))
             ->assertOk()
             ->assertSee('Your reservations')
@@ -101,7 +103,7 @@ class BookingReservationTest extends TestCase
             'seat_number' => 'C3',
         ]);
 
-        $session = ['username' => 'user'];
+        $session = ['username' => 'user', 'role' => 'user'];
 
         $this->withSession($session)->get(route('reservations.edit', $foreign))->assertForbidden();
         $this->withSession($session)->put(route('reservations.update', $foreign), ['seat_number' => 'C4'])->assertForbidden();
@@ -121,12 +123,12 @@ class BookingReservationTest extends TestCase
             'seat_number' => 'A1',
         ]);
 
-        $this->withSession(['username' => 'user'])
+        $this->withSession(['username' => 'user', 'role' => 'user'])
             ->put(route('reservations.update', $reservation), ['seat_number' => 'A2'])
             ->assertRedirect(route('movies.booking', $movie));
         $this->assertSame('A2', $reservation->fresh()->seat_number);
 
-        $this->withSession(['username' => 'user'])
+        $this->withSession(['username' => 'user', 'role' => 'user'])
             ->delete(route('reservations.destroy', $reservation))
             ->assertRedirect(route('movies.booking', $movie));
         $this->assertDatabaseMissing('seat_reservations', ['id' => $reservation->id]);
