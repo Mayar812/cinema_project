@@ -184,18 +184,33 @@ class BookingController extends Controller
 
         return [
             'customer_name' => ['required', 'string', 'max:80'],
-            'seat_number' => ['required', 'string', 'max:2', 'regex:/^[ABC][1-6]$/', $uniqueSeat],
+            'seat_number' => ['required', 'string', 'max:2', 'regex:/^[ABC][1-6]$/', $uniqueSeat, $this->seatMatchesChairType()],
             'chair_type' => ['required', Rule::in(['VIP', 'Premium'])],
             'snacks' => ['nullable', Rule::in(['Popcorn combo', 'Nachos', 'Cola', 'Kids popcorn', 'None'])],
             'payment_method' => ['required', Rule::in(['Visa', 'Mastercard', 'Cash'])],
         ];
     }
 
+    // The seat's row must belong to the same tier as the chosen chair type:
+    // VIP rows can only take VIP chairs, every other row only Premium.
+    private function seatMatchesChairType(): \Closure
+    {
+        return function (string $attribute, mixed $value, \Closure $fail): void {
+            $row = strtoupper(substr((string) $value, 0, 1));
+            $seatType = in_array($row, (array) config('cinema.vip_rows'), true) ? 'VIP' : 'Premium';
+
+            if (request()->input('chair_type') !== $seatType) {
+                $fail("Seat {$value} is a {$seatType} seat. Pick a {$seatType} chair or choose a seat that matches your chair type.");
+            }
+        };
+    }
+
     private function bookingData(Movie $movie, array $data, ?User $user): array
     {
         $snacks = ($data['snacks'] ?? null) === 'None' ? null : ($data['snacks'] ?? null);
-        $chairFee = $data['chair_type'] === 'VIP' ? 8 : 4;
-        $snackFee = $snacks ? 7 : 0;
+        $chairFees = (array) config('cinema.chair_fees');
+        $chairFee = $chairFees[$data['chair_type']] ?? 0;
+        $snackFee = $snacks ? (int) config('cinema.snack_fee') : 0;
 
         return [
             'user_id' => $user?->id,

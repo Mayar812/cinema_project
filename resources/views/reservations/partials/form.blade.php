@@ -10,6 +10,7 @@
     $paymentMethod = old('payment_method', $booking?->payment_method ?? 'Visa');
     $seatRows = config('cinema.seat_rows');
     $seatColumns = config('cinema.seat_columns');
+    $vipRows = config('cinema.vip_rows');
     $totalSeats = count($seatRows) * count($seatColumns);
     $bookedCount = $bookedSeats->count();
 @endphp
@@ -29,9 +30,13 @@
 <div class="grid gap-4 md:grid-cols-3">
     <label class="block">
         <span class="text-sm font-semibold text-neutral-200">Chair type</span>
+        @php
+            $chairFees = config('cinema.chair_fees');
+            $vipExtra = ($chairFees['VIP'] ?? 0) - ($chairFees['Premium'] ?? 0);
+        @endphp
         <select name="chair_type" required class="mt-2 w-full rounded-2xl border border-white/10 bg-neutral-900/80 px-4 py-3 text-neutral-100 outline-none" style="background-color: #0a0a0a; color: #ffffff; color-scheme: dark;">
             <option style="background-color: #0a0a0a; color: #ffffff;" value="Premium" @selected($chairType === 'Premium')>Premium</option>
-            <option style="background-color: #0a0a0a; color: #ffffff;" value="VIP" @selected($chairType === 'VIP')>VIP</option>
+            <option style="background-color: #0a0a0a; color: #ffffff;" value="VIP" @selected($chairType === 'VIP')>VIP (+${{ $vipExtra }})</option>
         </select>
     </label>
 
@@ -90,25 +95,33 @@
 
         <div class="mt-8 space-y-5">
             @foreach ($seatRows as $row)
+                @php $rowType = in_array($row, $vipRows, true) ? 'VIP' : 'Premium'; @endphp
                 <div class="grid grid-cols-[1.5rem_repeat(6,minmax(2.25rem,1fr))] items-center gap-3 sm:grid-cols-[2rem_repeat(6,minmax(3rem,1fr))] sm:gap-5">
-                    <div class="text-xl font-black text-neutral-200">{{ $row }}</div>
+                    <div class="text-xl font-black text-neutral-200">
+                        {{ $row }}
+                        <span class="block text-[0.6rem] font-bold uppercase tracking-wide {{ $rowType === 'VIP' ? 'text-amber-300' : 'text-neutral-500' }}">{{ $rowType }}</span>
+                    </div>
                     @foreach ($seatColumns as $column)
                         @php
                             $seatCode = $row.$column;
                             $isBooked = $bookedSeats->contains($seatCode) && $seatCode !== $currentSeat;
+                            $matchesType = $rowType === $chairType;
                             $state = $isBooked ? 'booked' : ($seatCode === $currentSeat ? 'selected' : 'available');
                         @endphp
                         <button
                             type="button"
                             class="cinema-seat-button {{ $column === 4 ? 'cinema-seat-aisle' : '' }}"
                             data-seat="{{ $seatCode }}"
+                            data-seat-type="{{ $rowType }}"
                             data-state="{{ $state }}"
-                            @disabled($isBooked)
-                            aria-label="Seat {{ $seatCode }} {{ $state }}"
+                            data-booked="{{ $isBooked ? 'true' : 'false' }}"
+                            data-mismatch="{{ ! $isBooked && ! $matchesType ? 'true' : 'false' }}"
+                            @disabled($isBooked || ! $matchesType)
+                            aria-label="Seat {{ $seatCode }} {{ $rowType }} {{ $state }}"
                             aria-pressed="{{ $seatCode === $currentSeat ? 'true' : 'false' }}"
                         >
                             <span class="cinema-seat-icon" aria-hidden="true"></span>
-                            <span class="sr-only">Seat {{ $seatCode }}</span>
+                            <span class="sr-only">Seat {{ $seatCode }} ({{ $rowType }})</span>
                         </button>
                     @endforeach
                 </div>
@@ -131,7 +144,7 @@
 </section>
 
 <p class="text-xs leading-5 text-neutral-400">
-    Pick any open seat in the grid (A1-C6). Greyed seats are already booked for this show.
+    Row A is VIP; rows B and C are Premium. Pick an open seat that matches your chosen chair type — seats for the other type are dimmed, and greyed seats are already booked for this show.
 </p>
 
 <button class="w-full rounded-2xl bg-[#E50914] px-5 py-3 font-black text-white shadow-lg shadow-red-950/60 transition hover:bg-red-700">

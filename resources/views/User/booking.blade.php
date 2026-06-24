@@ -77,6 +77,16 @@
                     <dt class="text-neutral-400">Seats left</dt>
                     <dd class="font-semibold text-red-300">{{ $movie->total_seats - $movie->booked_seats_count }}</dd>
                 </div>
+                @if ($isBookable)
+                    <div class="flex items-center justify-between gap-4 border-t border-white/10 pt-3"
+                        data-price-summary
+                        data-ticket-price="{{ $movie->ticket_price }}"
+                        data-chair-fees='@json(config('cinema.chair_fees'))'
+                        data-snack-fee="{{ config('cinema.snack_fee') }}">
+                        <dt class="text-neutral-400">Your total</dt>
+                        <dd class="text-lg font-black text-red-300" data-price-total>${{ number_format((float) $movie->ticket_price + (config('cinema.chair_fees.Premium') ?? 0), 2) }}</dd>
+                    </div>
+                @endif
             </dl>
         </div>
 
