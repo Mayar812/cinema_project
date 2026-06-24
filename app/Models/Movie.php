@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 // Movie data is stored in the existing showtimes table seeded by the project.
 #[Fillable([
@@ -37,6 +38,12 @@ class Movie extends Model
         ];
     }
 
+    // Every reservation made against this showtime's seat grid.
+    public function seatReservations(): HasMany
+    {
+        return $this->hasMany(SeatReservation::class, 'show_id', 'show_id');
+    }
+
     public function scopeComingSoon(Builder $query): Builder
     {
         return $query->where('movie_status', 'Coming Soon');
@@ -47,6 +54,26 @@ class Movie extends Model
         return $query
             ->where('movie_status', 'Showing')
             ->where('available_seats', '>', 0);
+    }
+
+    // The fixed number of seats in every hall (rows × columns).
+    public function getTotalSeatsAttribute(): int
+    {
+        return count((array) config('cinema.seat_rows'))
+            * count((array) config('cinema.seat_columns'));
+    }
+
+    // How many of those seats are actually reserved right now.
+    public function getBookedSeatsCountAttribute(): int
+    {
+        return $this->seatReservations()->count();
+    }
+
+    // Sold out when every seat in the grid is reserved, regardless of the
+    // available_seats counter (which can drift out of sync).
+    public function getIsSoldOutAttribute(): bool
+    {
+        return $this->booked_seats_count >= $this->total_seats;
     }
 
     public function getDurationInMinutesAttribute(): ?int

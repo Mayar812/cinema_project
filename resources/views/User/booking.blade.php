@@ -6,7 +6,7 @@
     $imageUrl = $movie->image && str_starts_with($movie->image, 'http')
         ? $movie->image
         : ($movie->image ? asset($movie->image) : null);
-    $isBookable = $movie->movie_status === 'Showing' && $movie->available_seats > 0;
+    $isBookable = $movie->movie_status === 'Showing' && ! $movie->is_sold_out;
 @endphp
 
 @section('content')
@@ -75,7 +75,7 @@
                 </div>
                 <div class="flex items-center justify-between gap-4">
                     <dt class="text-neutral-400">Seats left</dt>
-                    <dd class="font-semibold text-red-300">{{ $movie->available_seats }}</dd>
+                    <dd class="font-semibold text-red-300">{{ $movie->total_seats - $movie->booked_seats_count }}</dd>
                 </div>
             </dl>
         </div>

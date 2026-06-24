@@ -33,7 +33,7 @@ class BookingController extends Controller
     // Reserve a seat for this showtime.
     public function store(Request $request, Movie $movie): RedirectResponse
     {
-        if ($movie->movie_status !== 'Showing' || $movie->available_seats < 1) {
+        if ($movie->movie_status !== 'Showing' || $movie->is_sold_out) {
             return back()->withErrors(['seat_number' => 'This movie is not available for booking.']);
         }
 
